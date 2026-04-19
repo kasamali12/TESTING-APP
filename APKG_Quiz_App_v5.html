@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>APKG Quiz</title>
+<style>
+:root{
+  --green:#1D9E75;--gl:#E1F5EE;--gd:#085041;
+  --red:#E24B4A;--rl:#FCEBEB;
+  --bl2:#1976D2;--bg:#f2f3f5;--card:#fff;--card2:#f7f8fa;
+  --bdr:#dde1e9;--t:#111827;--m:#6B7280;--h:#9CA3AF;
+  --gold:#F59E0B;--goldl:#FEF3C7;--goldd:#92400E;
+  --rs:10px;--rr:14px;--sh:0 1px 4px rgba(0,0,0,.08)
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0d1117;--card:#161b27;--card2:#1c2130;--bdr:#252d3d;
+  --t:#e2e8f0;--m:#8892a4;--h:#4b5563;--gl:#0a2418;--rl:#200f0f;--goldl:#1f1500;--goldd:#fbbf24
+}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t);min-height:100vh}
+.hidden{display:none!important}
+button{font-family:inherit}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--bl2);color:#fff;padding:0 12px;height:56px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.tb-back{width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tb-back:active{background:rgba(255,255,255,.25)}
+.tb-mid{flex:1;min-width:0}
+.tb-title{font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-sub{font-size:11px;opacity:.75;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-icons{display:flex;gap:4px}
+.tb-icon{width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.12);color:#fff;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.tb-icon:active{background:rgba(255,255,255,.25)}
+
+/* ── UPLOAD ── */
+.upload-wrap{max-width:600px;margin:0 auto;padding:24px 14px}
+.hero{text-align:center;padding:10px 0 28px}
+.hero h1{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
+.hero p{font-size:14px;color:var(--m)}
+.dropzone{background:var(--card);border:2px dashed var(--bdr);border-radius:var(--rr);padding:40px 20px;text-align:center;cursor:pointer;transition:.18s;margin-bottom:14px}
+.dropzone:hover,.dropzone.over{border-color:var(--green);background:var(--gl)}
+.dz-icon{font-size:44px;margin-bottom:12px}
+.dz-title{font-size:16px;font-weight:700;margin-bottom:5px}
+.dz-sub{font-size:13px;color:var(--m)}
+.browse-btn{display:inline-block;margin-top:14px;padding:10px 26px;background:var(--green);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
+.file-in{display:none}
+.fmt-row{display:flex;gap:8px;justify-content:center;margin-bottom:16px;font-size:12px;color:var(--m)}
+.fmt-badge{background:var(--card);border:1px solid var(--bdr);padding:4px 10px;border-radius:20px;font-weight:600}
+.saved-hdr{font-size:12px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.06em;margin:4px 0 10px}
+.saved-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rs);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer;box-shadow:var(--sh)}
+.saved-card:active{background:var(--card2)}
+.sc-icon{font-size:26px;flex-shrink:0}
+.sc-name{font-size:14px;font-weight:700}
+.sc-meta{font-size:12px;color:var(--m);margin-top:2px}
+.sc-actions{display:flex;gap:6px;margin-left:auto;flex-shrink:0}
+.sc-btn{background:none;border:1px solid var(--bdr);color:var(--m);font-size:12px;cursor:pointer;padding:5px 10px;border-radius:6px;font-weight:600}
+.sc-btn:active{border-color:var(--green);color:var(--green)}
+.sc-del{background:none;border:none;color:var(--h);font-size:20px;cursor:pointer;padding:4px 6px;border-radius:6px}
+.sc-del:active{color:var(--red)}
+.err{background:var(--rl);border:1px solid var(--red);border-radius:var(--rs);padding:12px 14px;font-size:13px;color:#7a1010;margin:10px 0}
+.err strong{display:block;margin-bottom:3px}
+
+/* ── LOADING ── */
+.load-wrap{max-width:360px;margin:0 auto;padding:50px 16px;text-align:center}
+.spin{width:42px;height:42px;border:3px solid var(--bdr);border-top-color:var(--green);border-radius:50%;animation:sp .7s linear infinite;margin:0 auto 18px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.load-t{font-size:17px;font-weight:700;margin-bottom:6px}
+.load-s{font-size:13px;color:var(--m);margin-bottom:20px}
+.steps{text-align:left;display:inline-flex;flex-direction:column;gap:8px}
+.step{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--m);transition:.2s}
+.step.done{color:var(--green)}.step.active{color:var(--t);font-weight:600}
+.sdot{width:22px;height:22px;border-radius:50%;border:2px solid var(--bdr);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:.2s}
+.step.done .sdot{background:var(--green);border-color:var(--green);color:#fff}
+.step.active .sdot{border-color:var(--green);color:var(--green)}
+
+/* ── BROWSER ── */
+.browser-wrap{max-width:700px;margin:0 auto}
+.breadcrumb-bar{background:var(--card);border-bottom:1px solid var(--bdr);padding:8px 14px;display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;min-height:36px}
+.breadcrumb-bar::-webkit-scrollbar{display:none}
+.bc{font-size:12px;color:var(--m);white-space:nowrap;cursor:pointer;padding:2px 4px;border-radius:4px}
+.bc:hover{color:var(--green)}.bc.cur{color:var(--t);font-weight:700;cursor:default}
+.bc-sep{font-size:12px;color:var(--h);flex-shrink:0}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border-bottom:1px solid var(--bdr);margin-bottom:10px}
+.stat{padding:10px 4px;text-align:center;border-right:1px solid var(--bdr)}
+.stat:last-child{border-right:none}
+.stat-v{font-size:19px;font-weight:800;color:var(--green)}
+.stat-l{font-size:10px;color:var(--m);margin-top:1px;text-transform:uppercase;letter-spacing:.04em}
+.deck-section{padding:0 10px 16px}
+
+/* Starred banner */
+.starred-banner{background:var(--goldl);border:1.5px solid var(--gold);border-radius:var(--rs);margin-bottom:10px;overflow:hidden;box-shadow:var(--sh)}
+.sb-row{display:flex;align-items:center;padding:12px 14px;gap:10px}
+.sb-icon{font-size:22px}
+.sb-info{flex:1}
+.sb-title{font-size:15px;font-weight:700;color:var(--goldd)}
+.sb-sub{font-size:12px;color:var(--m);margin-top:2px}
+.sb-btns{display:flex;gap:8px}
+.sb-quiz-btn{background:var(--gold);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.sb-quiz-btn:active{opacity:.85}
+.sb-browse-btn{background:none;border:1.5px solid var(--gold);color:var(--goldd);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.sb-browse-btn:active{background:var(--goldl)}
+
+.deck-item{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rs);margin-bottom:7px;overflow:hidden;box-shadow:var(--sh)}
+.deck-row{display:flex;align-items:center;min-height:56px;padding:10px 12px 10px 14px;cursor:pointer;gap:10px}
+.deck-row:active{background:var(--card2)}
+.deck-folder-icon{font-size:18px;flex-shrink:0;width:26px;text-align:center}
+.deck-name{flex:1;min-width:0}
+.deck-name-text{font-size:15px;font-weight:600;line-height:1.35}
+.deck-name-sub{font-size:11px;color:var(--m);margin-top:2px}
+.deck-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.deck-count{font-size:14px;font-weight:700;color:var(--bl2)}
+.deck-best{font-size:11px;font-weight:700;background:var(--gl);color:var(--gd);padding:2px 8px;border-radius:20px}
+.deck-star-cnt{font-size:11px;font-weight:700;background:var(--goldl);color:var(--goldd);padding:2px 8px;border-radius:20px}
+.deck-arrow{font-size:13px;color:var(--m)}
+.deck-foot{border-top:1px solid var(--bdr);display:flex}
+.foot-btn{flex:1;padding:10px 6px;background:none;border:none;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.foot-btn.quiz{color:var(--green)}.foot-btn.quiz:active{background:var(--gl)}
+.foot-btn.browse-q{color:var(--gold)}.foot-btn.browse-q:active{background:var(--goldl)}
+.foot-btn.pdf{color:var(--m)}.foot-btn.pdf:active{background:var(--card2)}
+.foot-sep{width:1px;background:var(--bdr)}
+.leaf-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rr);padding:20px;margin:10px;text-align:center}
+.leaf-icon{font-size:36px;margin-bottom:10px}
+.leaf-name{font-size:17px;font-weight:700;margin-bottom:5px}
+.leaf-count{font-size:14px;color:var(--m);margin-bottom:18px}
+.leaf-btns{display:flex;flex-direction:column;gap:8px}
+.leaf-quiz-btn{width:100%;padding:15px;background:var(--green);color:#fff;border:none;border-radius:var(--rs);font-size:16px;font-weight:700;cursor:pointer}
+.leaf-quiz-btn:active{opacity:.9}
+.leaf-browse-btn{width:100%;padding:12px;background:none;border:1.5px solid var(--gold);color:var(--goldd);border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer}
+.leaf-browse-btn:active{background:var(--goldl)}
+.all-quiz-row{padding:0 10px 10px}
+.all-quiz-btn{width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer}
+.all-quiz-btn:active{opacity:.9}
+
+/* ── BROWSE SCREEN ── */
+.browse-wrap{max-width:700px;margin:0 auto}
+.browse-topbar{background:var(--card);border-bottom:1px solid var(--bdr);padding:8px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:56px;z-index:100}
+.filter-tabs{display:flex;gap:6px;flex:1}
+.ftab{padding:7px 14px;border-radius:20px;border:1.5px solid var(--bdr);font-size:13px;font-weight:600;cursor:pointer;background:var(--card2);color:var(--m);transition:.12s}
+.ftab.on{background:var(--green);border-color:var(--green);color:#fff}
+.ftab.starred-tab.on{background:var(--gold);border-color:var(--gold);color:#fff}
+.search-toggle{width:36px;height:36px;border:none;background:none;font-size:18px;cursor:pointer;border-radius:50%;color:var(--m);display:flex;align-items:center;justify-content:center}
+.search-toggle:active{background:var(--card2)}
+.search-bar{background:var(--card);border-bottom:1px solid var(--bdr);padding:8px 12px;display:none}
+.search-bar.open{display:block}
+.search-input{width:100%;padding:9px 12px;border:1.5px solid var(--bdr);border-radius:var(--rs);font-size:14px;background:var(--card2);color:var(--t);outline:none}
+.search-input:focus{border-color:var(--green)}
+.browse-list{padding:8px 10px 80px}
+.bq-item{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rs);margin-bottom:6px;overflow:hidden}
+.bq-header{display:flex;align-items:flex-start;padding:12px 12px 10px 12px;gap:10px;cursor:pointer}
+.bq-header:active{background:var(--card2)}
+.star-btn{width:34px;height:34px;flex-shrink:0;border:none;background:none;font-size:20px;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:.12s}
+.star-btn:active{background:var(--goldl)}
+.bq-qtext{flex:1;font-size:14px;line-height:1.55;color:var(--t);padding-top:2px}
+.bq-qtext img{max-width:100%;border-radius:6px;margin-top:6px;display:block;border:1px solid var(--bdr)}
+.bq-expand{font-size:12px;color:var(--m);flex-shrink:0;padding-top:6px;transition:transform .2s}
+.bq-expand.open{transform:rotate(180deg)}
+.bq-body{border-top:1px solid var(--bdr);padding:10px 12px;display:none}
+.bq-body.open{display:block}
+.bq-opts{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
+.bq-opt{display:flex;gap:8px;align-items:flex-start;font-size:13px;padding:6px 8px;border-radius:6px;border:1px solid var(--bdr)}
+.bq-opt.correct{border-color:var(--green);background:var(--gl);color:var(--gd);font-weight:600}
+.bq-ol{width:22px;height:22px;border-radius:50%;background:var(--bdr);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bq-opt.correct .bq-ol{background:var(--green);color:#fff}
+.bq-meta{font-size:11px;color:var(--m);display:flex;gap:10px;flex-wrap:wrap}
+.bq-exp{font-size:12px;color:var(--m);background:var(--card2);border-left:3px solid var(--green);padding:8px 10px;border-radius:0 6px 6px 0;margin-top:6px;line-height:1.6}
+.bq-empty{text-align:center;padding:50px 20px;color:var(--m);font-size:14px}
+.bq-empty-icon{font-size:40px;margin-bottom:12px}
+.browse-fab{position:fixed;bottom:20px;right:14px;background:var(--green);color:#fff;border:none;border-radius:28px;padding:13px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);display:flex;align-items:center;gap:7px;z-index:150}
+.browse-fab:active{opacity:.9}
+.bq-deck-tag{font-size:10px;background:var(--card2);border:1px solid var(--bdr);color:var(--m);padding:2px 8px;border-radius:10px}
+
+/* ── QUIZ MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:flex-end;justify-content:center}
+.quiz-modal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:0 0 28px;max-height:90vh;overflow-y:auto;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.qm-handle{width:40px;height:4px;background:var(--bdr);border-radius:2px;margin:12px auto 0}
+.qm-header{padding:16px 18px 0}
+.qm-title{font-size:17px;font-weight:800;margin-bottom:3px}
+.qm-sub{font-size:13px;color:var(--m)}
+.qm-section{padding:14px 18px 0}
+.qm-label{font-size:11px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.seg-grp{display:flex;gap:5px;flex-wrap:wrap}
+.seg{padding:7px 13px;border:1.5px solid var(--bdr);background:var(--card2);border-radius:var(--rs);font-size:13px;cursor:pointer;color:var(--m);transition:.12s}
+.seg.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:700}
+.qm-toggles{display:flex;flex-direction:column;gap:8px;padding:14px 18px 0}
+.qm-tog-row{display:flex;align-items:center;justify-content:space-between}
+.qm-tog-lbl{font-size:14px;font-weight:600}
+.qm-tog-sub{font-size:12px;color:var(--m);margin-top:1px}
+.tog{position:relative;width:44px;height:25px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0}
+.tsl{position:absolute;inset:0;background:var(--bdr);border-radius:13px;cursor:pointer;transition:.2s}
+.tsl:before{content:'';position:absolute;width:19px;height:19px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.tog input:checked+.tsl{background:var(--green)}
+.tog input:checked+.tsl:before{transform:translateX(19px)}
+.qm-footer{padding:18px 18px 0;display:flex;gap:10px}
+.qm-start-btn{flex:1;padding:15px;background:var(--green);color:#fff;border:none;border-radius:var(--rs);font-size:16px;font-weight:700;cursor:pointer}
+.qm-start-btn:active{opacity:.9}
+.qm-cancel-btn{padding:15px 20px;background:var(--card2);color:var(--m);border:1.5px solid var(--bdr);border-radius:var(--rs);font-size:15px;font-weight:600;cursor:pointer}
+.qm-cancel-btn:active{background:var(--bdr)}
+.qm-starred-row{padding:12px 18px 0;display:flex;align-items:center;justify-content:space-between;background:var(--goldl);margin:12px 18px 0;border-radius:var(--rs);border:1px solid var(--gold)}
+.qm-starred-lbl{font-size:13px;font-weight:700;color:var(--goldd)}
+.qm-starred-cnt{font-size:12px;color:var(--m);margin-top:2px}
+
+/* ── QUIZ SCREEN ── */
+.quiz-wrap{max-width:680px;margin:0 auto;padding:12px 12px 0}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.q-lbl{font-size:13px;color:var(--m);font-weight:600}
+.pills{display:flex;gap:6px}
+.pill{background:var(--card);border:1px solid var(--bdr);border-radius:20px;padding:4px 12px;font-size:13px;color:var(--m)}
+.pill strong{color:var(--t)}
+.prog{height:5px;background:var(--bdr);border-radius:3px;margin-bottom:12px;overflow:hidden}
+.prog-fill{height:100%;background:var(--green);border-radius:3px;transition:width .4s ease}
+.timer{height:3px;background:var(--bdr);border-radius:2px;margin-bottom:12px;overflow:hidden;display:none}
+.timer-fill{height:100%;background:var(--green);border-radius:2px;transition:width 1s linear}
+.q-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rr);padding:18px 16px;margin-bottom:10px}
+.q-tags{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700}
+.tag-deck{background:var(--gl);color:var(--gd)}
+.q-text{font-size:15px;line-height:1.75;color:var(--t);margin-bottom:16px}
+.q-text img{max-width:100%;border-radius:var(--rs);margin-top:8px;display:block;border:1px solid var(--bdr)}
+.q-star-row{display:flex;justify-content:flex-end;margin-bottom:8px}
+.q-star-btn{background:none;border:1.5px solid var(--bdr);border-radius:20px;padding:5px 12px;font-size:13px;cursor:pointer;color:var(--m);font-weight:600;display:flex;align-items:center;gap:5px}
+.q-star-btn.on{border-color:var(--gold);background:var(--goldl);color:var(--goldd)}
+.q-star-btn:active{opacity:.8}
+.options{display:flex;flex-direction:column;gap:7px}
+.opt{display:flex;align-items:flex-start;gap:10px;background:var(--card2);border:1.5px solid var(--bdr);border-radius:var(--rs);padding:11px 13px;cursor:pointer;width:100%;text-align:left;font-size:14px;color:var(--t);line-height:1.5;transition:.1s}
+.opt:active:not(:disabled){border-color:var(--green);background:var(--gl)}
+.opt:disabled{cursor:not-allowed}
+.opt.correct{border-color:var(--green);background:var(--gl);color:var(--gd)}
+.opt.wrong{border-color:var(--red);background:var(--rl);color:#6b1111}
+.opt-L{width:24px;height:24px;border-radius:50%;background:var(--bdr);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--m)}
+.opt.correct .opt-L{background:var(--green);color:#fff}
+.opt.wrong .opt-L{background:var(--red);color:#fff}
+.exp{background:var(--card2);border-left:4px solid var(--green);border-radius:0 var(--rs) var(--rs) 0;padding:12px 14px;margin-top:12px;font-size:13px;color:var(--m);line-height:1.65}
+.exp-t{font-size:13px;font-weight:700;color:var(--t);margin-bottom:5px}
+.exp-ref{font-size:11px;color:var(--h);margin-top:6px;padding-top:6px;border-top:1px solid var(--bdr)}
+.next-btn{width:100%;padding:14px;background:var(--card);border:1.5px solid var(--bdr);border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer;color:var(--t);margin-bottom:6px}
+.next-btn:active{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* ── RESULTS ── */
+.res-wrap{max-width:600px;margin:0 auto;padding:16px 12px}
+.res-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rr);padding:28px 20px;text-align:center;margin-bottom:12px}
+.res-pct{font-size:68px;font-weight:900;color:var(--green);line-height:1;letter-spacing:-2px}
+.res-grade{font-size:18px;font-weight:700;margin-top:8px}
+.res-sub{font-size:13px;color:var(--m);margin-top:4px;margin-bottom:22px}
+.res-bar-wrap{height:7px;background:var(--bdr);border-radius:4px;overflow:hidden;margin-bottom:22px}
+.res-bar{height:100%;background:var(--green);border-radius:4px;transition:width 1s ease}
+.res-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.rst{background:var(--card2);border-radius:var(--rs);padding:12px 6px;text-align:center}
+.rst-v{font-size:18px;font-weight:800}
+.rst-l{font-size:10px;color:var(--m);margin-top:2px;text-transform:uppercase;letter-spacing:.03em}
+.res-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.res-btn-p{background:var(--green);color:#fff;border:none;border-radius:var(--rs);padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer}
+.res-btn-s{background:var(--card2);color:var(--t);border:1px solid var(--bdr);border-radius:var(--rs);padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer}
+
+/* ── REVIEW ── */
+.rev-wrap{max-width:640px;margin:0 auto;padding:12px}
+.rev-item{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rs);padding:14px;margin-bottom:8px}
+.rev-n{font-size:11px;font-weight:700;color:var(--m);margin-bottom:4px}
+.rev-q{font-size:14px;font-weight:600;margin-bottom:7px;line-height:1.5}
+.rev-a{font-size:13px;font-weight:700;color:var(--green)}
+.rev-w{font-size:13px;color:var(--red);margin-top:3px}
+.rev-ok{font-size:13px;color:var(--green);margin-top:3px}
+.rev-to{font-size:13px;color:var(--m);margin-top:3px}
+
+/* ── SETTINGS ── */
+.set-wrap{max-width:600px;margin:0 auto;padding:14px}
+.set-group{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rs);margin-bottom:12px;overflow:hidden}
+.set-label{font-size:11px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.06em;padding:10px 16px 8px;border-bottom:1px solid var(--bdr);background:var(--card2)}
+.set-row{padding:13px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.set-row:last-child{border-bottom:none}
+.sr-lbl{font-size:14px;font-weight:600}
+.sr-sub{font-size:12px;color:var(--m);margin-top:2px}
+.export-btn{background:none;border:1.5px solid var(--green);border-radius:var(--rs);padding:7px 14px;font-size:13px;color:var(--green);cursor:pointer;font-weight:600}
+.danger-btn{background:none;border:1.5px solid var(--red);border-radius:var(--rs);padding:7px 14px;font-size:13px;color:var(--red);cursor:pointer;font-weight:600}
+
+/* ── PDF ── */
+@media print{
+  body>*:not(#pdf-print){display:none!important}
+  #pdf-print{display:block!important;color:#000;font-family:Arial,sans-serif;font-size:13px}
+  .pdf-cover{text-align:center;padding:50px 30px;page-break-after:always;border:2px solid #1D9E75;margin:10px}
+  .pdf-cover h1{font-size:26px;font-weight:bold;color:#1D9E75;margin-bottom:8px}
+  .pdf-meta{font-size:13px;color:#555;margin-top:5px}
+  .pdf-q{page-break-inside:avoid;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #eee}
+  .pdf-qn{font-size:10px;font-weight:bold;color:#1D9E75;text-transform:uppercase;margin-bottom:6px}
+  .pdf-qt{font-size:13px;font-weight:600;line-height:1.6;margin-bottom:10px}
+  .pdf-qt img{max-width:280px;display:block;margin:6px 0;border:1px solid #ccc}
+  .pdf-opt{display:flex;gap:8px;font-size:12px;margin-bottom:5px;align-items:flex-start}
+  .pdf-opt.ok{color:#1D9E75;font-weight:bold}
+  .pdf-ol{width:18px;height:18px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;flex-shrink:0}
+  .pdf-opt.ok .pdf-ol{background:#1D9E75;color:#fff}
+  .pdf-exp{background:#f0faf5;border-left:3px solid #1D9E75;padding:8px 10px;font-size:11px;margin-top:8px;color:#333}
+  .pdf-ref{font-size:10px;color:#888;margin-top:4px}
+  .pdf-sect{font-size:16px;font-weight:bold;color:#1D9E75;margin:20px 0 14px;padding-bottom:5px;border-bottom:2px solid #1D9E75}
+}
+#pdf-print{display:none}
+@media(max-width:420px){.res-stats{grid-template-columns:1fr 1fr}.deck-row{min-height:52px}.qm-footer{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar" id="topbar">
+  <button class="tb-back hidden" id="tb-back" onclick="navBack()">‹</button>
+  <div class="tb-mid">
+    <div class="tb-title" id="tb-title">APKG Quiz</div>
+    <div class="tb-sub" id="tb-sub">No AI · Works Offline</div>
+  </div>
+  <div class="tb-icons">
+    <button class="tb-icon hidden" id="btn-cfg" onclick="showScreen('sset')" title="Settings">⚙</button>
+    <button class="tb-icon hidden" id="btn-home" onclick="showUpload()" title="Open file">📂</button>
+  </div>
+</div>
+
+<!-- UPLOAD -->
+<div id="su">
+  <div class="upload-wrap">
+    <div class="hero"><h1>APKG Quiz</h1><p>Drill down your Anki deck tree. No AI. Fully offline.</p></div>
+    <div class="dropzone" id="drop" onclick="document.getElementById('fi').click()">
+      <div class="dz-icon">📦</div>
+      <div class="dz-title">Drop your file here</div>
+      <div class="dz-sub">Anki 2.x &amp; 23+ · or saved .json backup</div>
+      <button class="browse-btn" onclick="event.stopPropagation();document.getElementById('fi').click()">Choose File</button>
+    </div>
+    <div class="fmt-row"><span class="fmt-badge">📦 .apkg</span><span style="color:var(--m)">or</span><span class="fmt-badge">💾 .json backup</span></div>
+    <input type="file" id="fi" class="file-in" accept=".apkg,.json">
+    <div id="uerr"></div>
+    <div id="saved-wrap" class="hidden">
+      <div class="saved-hdr">Saved Decks</div>
+      <div id="saved-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="sl" class="hidden">
+  <div class="load-wrap">
+    <div class="spin"></div>
+    <div class="load-t" id="lt">Opening…</div>
+    <div class="load-s" id="ls">Please wait</div>
+    <div class="steps">
+      <div class="step" id="p1"><span class="sdot">1</span> Unzip package</div>
+      <div class="step" id="p2"><span class="sdot">2</span> Read database</div>
+      <div class="step" id="p3"><span class="sdot">3</span> Build deck tree</div>
+      <div class="step" id="p4"><span class="sdot">4</span> Extract MCQs</div>
+      <div class="step" id="p5"><span class="sdot">5</span> Embed images &amp; save</div>
+    </div>
+  </div>
+</div>
+
+<!-- BROWSER -->
+<div id="sb" class="hidden">
+  <div class="browser-wrap">
+    <div class="breadcrumb-bar" id="breadcrumb"></div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-v" id="st-sub">0</div><div class="stat-l">Subdecks</div></div>
+      <div class="stat"><div class="stat-v" id="st-cards">0</div><div class="stat-l">Cards</div></div>
+      <div class="stat"><div class="stat-v" id="st-best">—</div><div class="stat-l">Best</div></div>
+    </div>
+    <div class="deck-section" id="deck-section"></div>
+  </div>
+</div>
+
+<!-- BROWSE MCQs -->
+<div id="sbrowse" class="hidden">
+  <div class="browse-wrap">
+    <div class="browse-topbar">
+      <div class="filter-tabs">
+        <button class="ftab on" id="ft-all" onclick="setBrowseFilter('all')">All</button>
+        <button class="ftab starred-tab" id="ft-starred" onclick="setBrowseFilter('starred')">⭐ Starred</button>
+      </div>
+      <button class="search-toggle" id="search-toggle-btn" onclick="toggleSearch()" title="Search">🔍</button>
+    </div>
+    <div class="search-bar" id="search-bar">
+      <input class="search-input" id="search-input" placeholder="Search questions…" oninput="renderBrowse()">
+    </div>
+    <div class="browse-list" id="browse-list"></div>
+  </div>
+  <button class="browse-fab hidden" id="browse-fab" onclick="startQuizFromStarred()">▶ Quiz Starred (<span id="fab-cnt">0</span>)</button>
+</div>
+
+<!-- QUIZ -->
+<div id="sq" class="hidden">
+  <div class="quiz-wrap">
+    <div class="q-top">
+      <div class="q-lbl" id="ql">Q1/10</div>
+      <div class="pills">
+        <div class="pill">Score <strong id="qsc">0</strong></div>
+        <div class="pill" id="stk" style="display:none">🔥 <strong id="qst">0</strong></div>
+      </div>
+    </div>
+    <div class="prog"><div class="prog-fill" id="pf" style="width:0%"></div></div>
+    <div class="timer" id="tmr"><div class="timer-fill" id="tmf" style="width:100%"></div></div>
+    <div id="qb"></div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="sres" class="hidden">
+  <div class="res-wrap" id="res-body"></div>
+</div>
+
+<!-- REVIEW -->
+<div id="srev" class="hidden">
+  <div class="rev-wrap" id="rev-body"></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="sset" class="hidden">
+  <div class="set-wrap">
+    <div class="set-group">
+      <div class="set-label">Default quiz settings</div>
+      <div class="set-row">
+        <div><div class="sr-lbl">Questions per round</div></div>
+        <div class="seg-grp" id="sg-count">
+          <button class="seg" onclick="pick(this,'count',5)">5</button>
+          <button class="seg on" onclick="pick(this,'count',10)">10</button>
+          <button class="seg" onclick="pick(this,'count',20)">20</button>
+          <button class="seg" onclick="pick(this,'count',50)">50</button>
+          <button class="seg" onclick="pick(this,'count',0)">All</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <div><div class="sr-lbl">Timer</div></div>
+        <div class="seg-grp" id="sg-timer">
+          <button class="seg on" onclick="pick(this,'timer',0)">Off</button>
+          <button class="seg" onclick="pick(this,'timer',15)">15s</button>
+          <button class="seg" onclick="pick(this,'timer',30)">30s</button>
+          <button class="seg" onclick="pick(this,'timer',60)">60s</button>
+          <button class="seg" onclick="pick(this,'timer',90)">90s</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <div><div class="sr-lbl">Shuffle questions</div><div class="sr-sub">Randomise order each round</div></div>
+        <label class="tog"><input type="checkbox" id="tog-sh" checked onchange="cfg.shuffle=this.checked"><span class="tsl"></span></label>
+      </div>
+      <div class="set-row">
+        <div><div class="sr-lbl">Explanations</div><div class="sr-sub">Show after each answer</div></div>
+        <label class="tog"><input type="checkbox" id="tog-ex" checked onchange="cfg.exp=this.checked"><span class="tsl"></span></label>
+      </div>
+      <div class="set-row">
+        <div><div class="sr-lbl">Include subdecks</div><div class="sr-sub">Quiz all chapters together</div></div>
+        <label class="tog"><input type="checkbox" id="tog-sub" checked onchange="cfg.subs=this.checked"><span class="tsl"></span></label>
+      </div>
+    </div>
+    <div class="set-group">
+      <div class="set-label">Export / Backup</div>
+      <div class="set-row">
+        <div><div class="sr-lbl">Download as JSON</div><div class="sr-sub">Compact · all data preserved · re-importable</div></div>
+        <button class="export-btn" onclick="exportJSON()">💾 Export</button>
+      </div>
+    </div>
+    <div class="set-group">
+      <div class="set-label">Storage</div>
+      <div class="set-row">
+        <div><div class="sr-lbl" id="sto-info">Saved decks</div><div class="sr-sub">Browser IndexedDB</div></div>
+        <button class="danger-btn" onclick="clearAll()">Clear All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div class="modal-overlay hidden" id="quiz-modal-overlay" onclick="closeModal(event)">
+  <div class="quiz-modal" id="quiz-modal">
+    <div class="qm-handle"></div>
+    <div class="qm-header">
+      <div class="qm-title" id="qm-title">Start Quiz</div>
+      <div class="qm-sub" id="qm-sub">0 questions available</div>
+    </div>
+    <div class="qm-section">
+      <div class="qm-label">Questions per round</div>
+      <div class="seg-grp" id="qm-count">
+        <button class="seg" onclick="pickModal(this,'count',5)">5</button>
+        <button class="seg on" onclick="pickModal(this,'count',10)">10</button>
+        <button class="seg" onclick="pickModal(this,'count',20)">20</button>
+        <button class="seg" onclick="pickModal(this,'count',50)">50</button>
+        <button class="seg" onclick="pickModal(this,'count',0)">All</button>
+      </div>
+    </div>
+    <div class="qm-section">
+      <div class="qm-label">Timer per question</div>
+      <div class="seg-grp" id="qm-timer">
+        <button class="seg on" onclick="pickModal(this,'timer',0)">Off</button>
+        <button class="seg" onclick="pickModal(this,'timer',15)">15s</button>
+        <button class="seg" onclick="pickModal(this,'timer',30)">30s</button>
+        <button class="seg" onclick="pickModal(this,'timer',60)">60s</button>
+        <button class="seg" onclick="pickModal(this,'timer',90)">90s</button>
+      </div>
+    </div>
+    <div class="qm-toggles">
+      <div class="qm-tog-row">
+        <div><div class="qm-tog-lbl">Shuffle questions</div></div>
+        <label class="tog"><input type="checkbox" id="qm-tog-sh" checked onchange="cfg.shuffle=this.checked"><span class="tsl"></span></label>
+      </div>
+      <div class="qm-tog-row">
+        <div><div class="qm-tog-lbl">Include subdecks</div></div>
+        <label class="tog"><input type="checkbox" id="qm-tog-sub" checked onchange="cfg.subs=this.checked"><span class="tsl"></span></label>
+      </div>
+      <div class="qm-tog-row">
+        <div><div class="qm-tog-lbl">Show explanations</div></div>
+        <label class="tog"><input type="checkbox" id="qm-tog-ex" checked onchange="cfg.exp=this.checked"><span class="tsl"></span></label>
+      </div>
+    </div>
+    <div class="qm-starred-row hidden" id="qm-starred-row" style="padding-bottom:12px">
+      <div>
+        <div class="qm-starred-lbl">⭐ Quiz only Starred</div>
+        <div class="qm-starred-cnt" id="qm-starred-cnt">0 starred in this deck</div>
+      </div>
+      <label class="tog"><input type="checkbox" id="qm-tog-star" onchange="cfg.onlyStarred=this.checked"><span class="tsl"></span></label>
+    </div>
+    <div class="qm-footer">
+      <button class="qm-cancel-btn" onclick="$('quiz-modal-overlay').classList.add('hidden')">Cancel</button>
+      <button class="qm-start-btn" onclick="confirmStartQuiz()">▶ Start Quiz</button>
+    </div>
+  </div>
+</div>
+
+<div id="pdf-print"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fzstd@0.1.0/umd/index.js"></script>
+<script>
+// ═══════════════════════════════════════════════════
+// GLOBALS
+// ═══════════════════════════════════════════════════
+let SQL = null, IDB = null;
+let rootNodes = [], nodeByKey = {}, navStack = [];
+let fileId = null, fileName = '';
+let qCache = {}, scores = {};
+let starredSids = new Set();          // sids of starred questions (current file)
+let browseQ = [], browseFilter = 'all', browseExpanded = new Set();
+let quizModalNode = null;             // node pending quiz start via modal
+let roundQ = [], roundRes = [];
+let qi = 0, sc = 0, streak = 0, maxSt = 0, ncorr = 0;
+let answered = false, tmrTick = null, activeNode = null;
+let cfg = { count:10, timer:0, shuffle:true, exp:true, subs:true, onlyStarred:false };
+
+// ═══════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+function showScreen(id){
+  ['su','sl','sb','sbrowse','sq','sres','srev','sset'].forEach(s=>$(s).classList.toggle('hidden',s!==id));
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+function strip(h){ return (h||'').replace(/<[^>]+>/g,' ').replace(/&amp;/g,'&').replace(/&gt;/g,'>').replace(/&lt;/g,'<').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim() }
+function san(h){ return (h||'').replace(/<script[\s\S]*?<\/script>/gi,'').replace(/on\w+="[^"]*"/gi,'') }
+function hasC(s){ return (s||'').trim().length > 1 }
+function isN03(s){ return /^\s*[0-3]\s*$/.test(s||'') }
+function isN14(s){ return /^\s*[1-4]\s*$/.test(s||'') }
+function b64(d){ let s=''; for(let i=0;i<d.length;i+=8192) s+=String.fromCharCode(...d.subarray(i,i+8192)); return btoa(s) }
+function decomp(d){ if(window.fzstd?.decompress) return fzstd.decompress(d); throw new Error('fzstd unavailable') }
+function setStep(id,st){ $(id).className='step '+st }
+function natSort(a,b){ return a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}) }
+
+// Stable short hash for question identity
+function qSid(q,opts){
+  const str=(q||'').slice(0,60)+(opts||[]).slice(0,2).join('|').slice(0,60);
+  let h=0x811c9dc5;
+  for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,0x01000193) }
+  return (h>>>0).toString(36);
+}
+
+function tb(title,sub,back,home,cfg_){
+  $('tb-title').textContent=title; $('tb-sub').textContent=sub||'';
+  back?$('tb-back').classList.remove('hidden'):$('tb-back').classList.add('hidden');
+  home?$('btn-home').classList.remove('hidden'):$('btn-home').classList.add('hidden');
+  cfg_?$('btn-cfg').classList.remove('hidden'):$('btn-cfg').classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════════
+// INDEXEDDB
+// ═══════════════════════════════════════════════════
+function openIDB(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open('apkg_quiz_v3',1);
+    r.onupgradeneeded=e=>{ const db=e.target.result; ['files','questions','scores'].forEach(s=>{ if(!db.objectStoreNames.contains(s)) db.createObjectStore(s,{keyPath:'key'}) }) };
+    r.onsuccess=e=>res(e.target.result);
+    r.onerror=()=>rej(r.error);
+  });
+}
+function iGet(store,key){ if(!IDB) return Promise.resolve(null); return new Promise((r,j)=>{ const tx=IDB.transaction(store,'readonly'),req=tx.objectStore(store).get(key); req.onsuccess=()=>r(req.result); req.onerror=()=>j(req.error) }) }
+function iPut(store,val){ if(!IDB) return Promise.resolve(); return new Promise((r,j)=>{ const tx=IDB.transaction(store,'readwrite'),req=tx.objectStore(store).put(val); req.onsuccess=()=>r(); req.onerror=()=>j(req.error) }) }
+function iDel(store,key){ if(!IDB) return Promise.resolve(); return new Promise((r,j)=>{ const tx=IDB.transaction(store,'readwrite'),req=tx.objectStore(store).delete(key); req.onsuccess=()=>r(); req.onerror=()=>j(req.error) }) }
+function iAll(store){ if(!IDB) return Promise.resolve([]); return new Promise((r,j)=>{ const tx=IDB.transaction(store,'readonly'),req=tx.objectStore(store).getAll(); req.onsuccess=()=>r(req.result); req.onerror=()=>j(req.error) }) }
+
+async function loadSaved(){
+  const files=await iAll('files');
+  const list=$('saved-list'); list.innerHTML='';
+  if(!files.length){ $('saved-wrap').classList.add('hidden'); return }
+  $('saved-wrap').classList.remove('hidden');
+  files.forEach(f=>{
+    const d=document.createElement('div'); d.className='saved-card';
+    d.innerHTML=`<div class="sc-icon">📚</div><div style="flex:1"><div class="sc-name">${esc(f.name)}</div><div class="sc-meta">${f.total} cards · ${new Date(f.at).toLocaleDateString()}</div></div><div class="sc-actions"><button class="sc-btn" onclick="event.stopPropagation();exportJSONById('${f.key}')">💾</button><button class="sc-del" onclick="event.stopPropagation();delSaved('${f.key}')">🗑</button></div>`;
+    d.onclick=()=>loadSavedDeck(f.key);
+    list.appendChild(d);
+  });
+}
+
+async function delSaved(key){
+  if(!confirm('Delete this saved deck?')) return;
+  await iDel('files',key);
+  const all=await iAll('questions'); for(const q of all) if(q.key.startsWith(key+'__')) await iDel('questions',q.key);
+  const sc2=await iAll('scores'); for(const s of sc2) if(s.key.startsWith(key+'__')) await iDel('scores',s.key);
+  loadSaved(); updateStoInfo();
+}
+
+async function loadSavedDeck(key){
+  const meta=await iGet('files',key);
+  if(!meta){ alert('Data not found, please re-upload.'); return }
+  fileId=key; fileName=meta.name;
+  const restored=restoreTree(meta.treeData);
+  rootNodes=restored.rootNodes; nodeByKey=restored.nodeByKey;
+  scores={};
+  const allSc=await iAll('scores');
+  allSc.filter(s=>s.key.startsWith(key+'__')&&!s.key.endsWith('__stars')).forEach(s=>{ scores[s.key.replace(key+'__','')]=s.val });
+  await loadStars(key);
+  qCache={}; navStack=[];
+  showBrowser();
+}
+
+async function saveFileMeta(key,name,total,treeData){ await iPut('files',{key,name,at:Date.now(),total,treeData}) }
+async function saveQuestions(key,pathKey,questions){ await iPut('questions',{key:`${key}__${pathKey}`,questions}) }
+async function loadQuestions(key,pathKey){ const r=await iGet('questions',`${key}__${pathKey}`); return r?.questions||null }
+async function saveScore(fileKey,pathKey,val){ await iPut('scores',{key:`${fileKey}__${pathKey}`,val}) }
+
+// ═══════════════════════════════════════════════════
+// STARS
+// ═══════════════════════════════════════════════════
+async function loadStars(fid){
+  const r=await iGet('scores',`${fid}__stars`);
+  starredSids=new Set(r?.val||[]);
+}
+async function saveStars(){
+  await iPut('scores',{key:`${fileId}__stars`,val:[...starredSids]});
+}
+async function toggleStar(sid){
+  if(starredSids.has(sid)) starredSids.delete(sid); else starredSids.add(sid);
+  await saveStars();
+  updateStarUI(sid);
+}
+function updateStarUI(sid){
+  // Update any star buttons on screen with this sid
+  document.querySelectorAll(`[data-sid="${sid}"]`).forEach(btn=>{
+    const on=starredSids.has(sid);
+    btn.textContent=on?'⭐':'☆';
+    btn.title=on?'Unstar':'Star';
+  });
+  // Update Q-screen star button
+  const qsb=$('qsb'); if(qsb&&qsb.dataset.sid===sid) syncQStarBtn(sid);
+  // Update browse FAB count
+  const fab=$('browse-fab'); if(fab&&!fab.classList.contains('hidden')){ $('fab-cnt').textContent=starredSids.size }
+}
+function syncQStarBtn(sid){
+  const btn=$('qsb'); if(!btn) return;
+  const on=starredSids.has(sid);
+  btn.className='q-star-btn'+(on?' on':'');
+  btn.innerHTML=`${on?'⭐':'☆'} ${on?'Starred':'Star'}`;
+}
+
+// ═══════════════════════════════════════════════════
+// UPLOAD
+// ═══════════════════════════════════════════════════
+function showUpload(){
+  tb('APKG Quiz','No AI · Offline',false,false,false);
+  showScreen('su'); loadSaved();
+}
+
+const drop=$('drop');
+$('fi').onchange=e=>e.target.files[0]&&handleFile(e.target.files[0]);
+drop.ondragover=e=>{e.preventDefault();drop.classList.add('over')};
+drop.ondragleave=()=>drop.classList.remove('over');
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');e.dataTransfer.files[0]&&handleFile(e.dataTransfer.files[0])};
+
+function showErr(msg){ $('uerr').innerHTML=`<div class="err"><strong>Error</strong>${esc(msg)}</div>` }
+
+async function handleFile(file){
+  $('uerr').innerHTML='';
+  if(file.name.endsWith('.json')){
+    tb('Loading…','Restoring backup',false,false,false); showScreen('sl');
+    try{ await importJSON(file) }catch(e){ showErr(e.message); showUpload() }
+    return;
+  }
+  if(!file.name.endsWith('.apkg')){ showErr('Please upload an .apkg or .json file.'); return }
+  tb('Loading…','Parsing APKG',false,false,false); showScreen('sl');
+  try{ await parseAPKG(file) }catch(e){ showErr(e.message); showUpload() }
+}
+
+// ═══════════════════════════════════════════════════
+// APKG PARSER
+// ═══════════════════════════════════════════════════
+async function parseAPKG(file){
+  setStep('p1','active');
+  const zip=await JSZip.loadAsync(file);
+  setStep('p1','done'); setStep('p2','active');
+  if(!SQL) SQL=await initSqlJs({locateFile:f=>`https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}`});
+  const db=await openDB(zip);
+  setStep('p2','done'); setStep('p3','active');
+  const mediaMap=await buildMedia(zip);
+  const {rawDecks,countByDid,fieldMap,notes}=readDB(db);
+  db.close();
+  const built=buildDeckTree(rawDecks,countByDid);
+  rootNodes=built.rootNodes; nodeByKey=built.nodeByKey;
+  setStep('p3','done'); setStep('p4','active');
+  const qByDid={};
+  for(const [flds,tags,mid,did] of notes){
+    const fields=flds.split('\x1f'); const fnames=fieldMap[mid]||[];
+    const q=detectMCQ(fields,fnames,tags||'');
+    if(q){ if(!qByDid[did]) qByDid[did]=[]; qByDid[did].push(q) }
+  }
+  setStep('p4','done'); setStep('p5','active');
+  const imgCache=await extractImages(qByDid,mediaMap,zip);
+  replaceImgSrcs(qByDid,imgCache);
+  fileId='f'+Date.now(); fileName=file.name.replace(/\.apkg$/i,'').replace(/_/g,' ');
+  qCache={}; starredSids=new Set(); let total=0;
+  async function walkSave(node){
+    const qs=qByDid[node.id]||[]; node.ownQ=qs; qCache[node.pathKey]=qs; total+=qs.length;
+    for(const c of node.children) await walkSave(c);
+    node.totalCount=qs.length+node.children.reduce((s,c)=>s+c.totalCount,0);
+    if(qs.length) await saveQuestions(fileId,node.pathKey,qs);
+  }
+  for(const r of rootNodes) await walkSave(r);
+  const treeData=serializeTree(rootNodes);
+  await saveFileMeta(fileId,fileName,total,treeData);
+  scores={}; navStack=[]; setStep('p5','done'); showBrowser();
+}
+
+async function openDB(zip){
+  const nf=zip.file('collection.anki21b');
+  if(nf){ try{ const raw=await nf.async('uint8array'); const dec=decomp(raw); const db=new SQL.Database(dec); const r=db.exec("SELECT COUNT(*) FROM notes")[0]; if(r&&r.values[0][0]>0) return db; db.close() }catch(e){} }
+  const of=zip.file('collection.anki2');
+  if(!of) throw new Error('No Anki database found in this APKG.');
+  return new SQL.Database(await of.async('uint8array'));
+}
+
+async function buildMedia(zip){
+  const mf=zip.file('media'); if(!mf) return {};
+  const raw=await mf.async('uint8array');
+  try{ const j=JSON.parse(new TextDecoder().decode(raw)); const m={}; for(const[n,f]of Object.entries(j)) m[f]=n; return m }catch(e){}
+  try{ return parseMediaProto(decomp(raw)) }catch(e){}
+  return {};
+}
+
+function parseMediaProto(bytes){
+  function varint(b,i){let v=0,s=0;while(b[i]&0x80){v|=(b[i++]&0x7f)<<s;s+=7;}return[v|(b[i]<<s),i+1]}
+  const m={};let i=0,idx=0;
+  while(i<bytes.length){
+    if(bytes[i]!==0x0a){i++;continue} i++;
+    let[el,p]=varint(bytes,i);i=p;const end=i+el;let fn=null;
+    while(i<end){const tag=bytes[i++];const fi=tag>>3;const wt=tag&7;
+      if(wt===2){let[ln,p2]=varint(bytes,i);i=p2;const v=bytes.slice(i,i+ln);i+=ln;if(fi===1)fn=new TextDecoder().decode(v);}
+      else if(wt===0){while(i<end&&bytes[i]&0x80)i++;i++;}else{i=end;break}}
+    i=end;if(fn)m[fn]=String(idx++);
+  }
+  return m;
+}
+
+function readDB(db){
+  const tables=(db.exec("SELECT name FROM sqlite_master WHERE type='table'")[0]||{values:[]}).values.map(r=>r[0]);
+  const newFmt=tables.includes('notetypes');
+  let fieldMap={};
+  if(newFmt){ const fr=db.exec("SELECT ntid,ord,name FROM fields ORDER BY ntid,ord")[0]; if(fr) fr.values.forEach(([ntid,ord,name])=>{ if(!fieldMap[ntid])fieldMap[ntid]=[]; fieldMap[ntid][ord]=name }) }
+  else{ try{ const cr=db.exec("SELECT models FROM col")[0]; if(cr){ const ms=JSON.parse(cr.values[0][0]); for(const[mid,m]of Object.entries(ms)) fieldMap[mid]=(m.flds||[]).map(f=>f.name) } }catch(e){} }
+  let rawDecks=[];
+  if(newFmt){ const dr=db.exec("SELECT id,name FROM decks")[0]; if(dr) rawDecks=dr.values.map(([id,name])=>({id:String(id),parts:name.split('\x1f')})) }
+  else{ try{ const cr=db.exec("SELECT decks FROM col")[0]; if(cr){ const dm=JSON.parse(cr.values[0][0]); rawDecks=Object.values(dm).map(d=>({id:String(d.id),parts:d.name.split('::')})) } }catch(e){} }
+  const countByDid={};
+  try{ const cc=db.exec("SELECT did,COUNT(*) FROM cards GROUP BY did")[0]; if(cc) cc.values.forEach(([did,cnt])=>countByDid[String(did)]=cnt) }catch(e){}
+  const nr=db.exec("SELECT n.flds,n.tags,n.mid,c.did FROM notes n JOIN cards c ON c.nid=n.id GROUP BY n.id")[0];
+  const notes=nr?nr.values.map(([flds,tags,mid,did])=>[flds,tags,String(mid),String(did)]):[];
+  return {rawDecks,countByDid,fieldMap,notes};
+}
+
+// ═══════════════════════════════════════════════════
+// DECK TREE  (natural/numeric sort)
+// ═══════════════════════════════════════════════════
+function buildDeckTree(rawDecks,countByDid){
+  const byKey={};
+  function getOrCreate(parts){
+    const key=parts.join('\x00');
+    if(byKey[key]) return byKey[key];
+    const node={id:null,name:parts[parts.length-1],pathKey:key,parts:[...parts],children:[],ownQ:[],ownCount:0,totalCount:0,isVirtual:true};
+    byKey[key]=node;
+    if(parts.length>1){ const parent=getOrCreate(parts.slice(0,-1)); parent.children.push(node) }
+    return node;
+  }
+  for(const deck of rawDecks){
+    if(!deck.parts||!deck.parts.length) continue;
+    const parts=deck.parts.filter(p=>p.trim()!==''); if(!parts.length) continue;
+    const node=getOrCreate(parts); node.id=deck.id; node.isVirtual=false; node.ownCount=countByDid[deck.id]||0;
+  }
+  const rootNodes=Object.values(byKey).filter(n=>n.parts.length===1);
+  // Natural numeric sort (1, 2, 10 not 1, 10, 2)
+  function sortNode(n){ n.children.sort((a,b)=>natSort(a.name,b.name)); n.children.forEach(sortNode) }
+  rootNodes.sort((a,b)=>natSort(a.name,b.name));
+  rootNodes.forEach(sortNode);
+  return {rootNodes,nodeByKey:byKey};
+}
+
+function serializeTree(nodes){
+  return nodes.map(n=>({id:n.id,name:n.name,pathKey:n.pathKey,parts:n.parts,ownCount:n.ownCount,totalCount:n.totalCount,isVirtual:n.isVirtual,children:serializeTree(n.children)}));
+}
+function restoreTree(data){
+  const nodeByKey={};
+  function restore(arr){ return arr.map(d=>{ const node={id:d.id,name:d.name,pathKey:d.pathKey,parts:d.parts,ownCount:d.ownCount||0,totalCount:d.totalCount||0,isVirtual:d.isVirtual,ownQ:[],children:restore(d.children)}; nodeByKey[node.pathKey]=node; return node }) }
+  return {rootNodes:restore(data),nodeByKey};
+}
+
+// ═══════════════════════════════════════════════════
+// MCQ DETECTION  (adds sid to each question)
+// ═══════════════════════════════════════════════════
+function detectMCQ(fields,fnames,tags){
+  const f=fields.map(x=>(x||'').trim()); const fn=fnames.map(x=>(x||'').toLowerCase().trim());
+  const qKw=['question','stem','prompt','problem','front','text'];
+  let qI=fn.findIndex(n=>qKw.some(k=>n.includes(k))); if(qI<0) qI=0;
+  const optRe=/^(option|choice|answer|opt|ans)\s*[1-4abcd]$/;
+  let optIs=fn.reduce((a,n,i)=>{ if(i!==qI&&hasC(f[i])&&(optRe.test(n)||/^[abcd]$/.test(n)||/^[1-4]$/.test(n))) a.push(i); return a },[]);
+  if(optIs.length<2){
+    const grp={}; fn.forEach((n,i)=>{ if(i===qI||!hasC(f[i]))return; const m=n.match(/^([a-z]{2,})\s*([1-4abcd])$/); if(m){const p=m[1];if(!grp[p])grp[p]=[];grp[p].push(i)} });
+    const best=Object.values(grp).sort((a,b)=>b.length-a.length)[0]; if(best&&best.length>=2) optIs=best.slice(0,4);
+  }
+  if(optIs.length<2){
+    const skip=f[qI+1]&&strip(f[qI+1]).length<20&&!/\s/.test(strip(f[qI+1]));
+    const st=qI+(skip?2:1),cands=[];
+    for(let i=st;i<Math.min(st+5,f.length);i++) if(hasC(f[i])&&strip(f[i]).length<=300) cands.push(i);
+    if(cands.length>=2) optIs=cands.slice(0,4);
+  }
+  if(optIs.length<2) return null;
+  const cnKw=['correctindex','answerindex','correct index','answer index','index','correct no','answernumber'];
+  const ctKw=['correctoption','correct answer','correct','answer key','solution'];
+  const used=new Set([qI,...optIs]);
+  let cnI=fn.findIndex((n,i)=>!used.has(i)&&cnKw.some(k=>n.includes(k)));
+  let ctI=fn.findIndex((n,i)=>!used.has(i)&&i!==cnI&&ctKw.some(k=>n.includes(k)));
+  let auI=f.findIndex((v,i)=>!used.has(i)&&i!==ctI&&(isN03(v)||isN14(v)));
+  let cor=0;
+  if(cnI>=0&&(isN03(f[cnI])||isN14(f[cnI]))){const v=parseInt(f[cnI]);cor=isN14(f[cnI])?v-1:v;}
+  else if(auI>=0){const v=parseInt(f[auI]);cor=isN14(f[auI])?v-1:v;}
+  else if(ctI>=0&&hasC(f[ctI])){
+    const ct=strip(f[ctI]).toUpperCase(); const lm={A:0,B:1,C:2,D:3};
+    if(lm[ct[0]]!==undefined) cor=lm[ct[0]];
+    else{ const mi=optIs.findIndex((_,i)=>strip(f[optIs[i]]).toLowerCase().includes(ct.toLowerCase().slice(0,15))); if(mi>=0) cor=mi; }
+  }
+  if(cor>=optIs.length) cor=0;
+  const expKw=['explanation','rationale','reason','note','detail','extra'];
+  const refKw=['reference','source','ref','citation'];
+  const used2=new Set([...used,cnI,ctI,auI].filter(i=>i>=0));
+  let expI=fn.findIndex((n,i)=>!used2.has(i)&&expKw.some(k=>n.includes(k)));
+  if(expI<0) expI=f.findIndex((v,i)=>!used2.has(i)&&strip(v).length>30);
+  const refI=fn.findIndex((n,i)=>!used2.has(i)&&i!==expI&&refKw.some(k=>n.includes(k)));
+  const opts=optIs.map(i=>strip(f[i]));
+  return { sid:qSid(f[qI],opts), q:f[qI], opts, correct:cor,
+    exp:expI>=0?strip(f[expI]):'', ref:refI>=0?strip(f[refI]).split('\n')[0]:'', tags:(tags||'').trim() };
+}
+
+// ═══════════════════════════════════════════════════
+// IMAGE EMBEDDING
+// ═══════════════════════════════════════════════════
+async function extractImages(qByDid,mediaMap,zip){
+  const refs=new Set();
+  for(const qs of Object.values(qByDid)) qs.forEach(q=>{(q.q.match(/src="([^"]+)"/g)||[]).forEach(m=>refs.add(m.match(/src="([^"]+)"/)[1]))});
+  const cache={};
+  for(const fname of refs){
+    const num=mediaMap[fname]; if(num===undefined) continue;
+    const entry=zip.file(String(num)); if(!entry) continue;
+    try{ let d=await entry.async('uint8array'); try{d=decomp(d)}catch(e){}
+      const mime=d[0]===0xFF&&d[1]===0xD8?'image/jpeg':d[0]===0x89?'image/png':'image/jpeg';
+      cache[fname]=`data:${mime};base64,${b64(d)}`; }catch(e){}
+  }
+  return cache;
+}
+function replaceImgSrcs(qByDid,imgCache){
+  for(const qs of Object.values(qByDid)) qs.forEach(q=>{ q.q=q.q.replace(/src="([^"]+)"/g,(_,fn)=>imgCache[fn]?`src="${imgCache[fn]}"`:_) });
+}
+
+// ═══════════════════════════════════════════════════
+// JSON EXPORT / IMPORT
+// ═══════════════════════════════════════════════════
+async function exportJSON(){
+  if(!fileId){ alert('Open a deck first.'); return }
+  await exportJSONById(fileId);
+}
+
+async function exportJSONById(fid){
+  const meta=await iGet('files',fid); if(!meta){ alert('Deck not found.'); return }
+  const allQ=await iAll('questions');
+  const qs={};
+  allQ.filter(q=>q.key.startsWith(fid+'__')&&!q.key.endsWith('__stars')).forEach(q=>{ qs[q.key.replace(fid+'__','')]=q.questions });
+  const allSc=await iAll('scores');
+  const sc2={};
+  allSc.filter(s=>s.key.startsWith(fid+'__')&&!s.key.endsWith('__stars')).forEach(s=>{ sc2[s.key.replace(fid+'__','')]=s.val });
+  const starsR=await iGet('scores',`${fid}__stars`);
+  const payload=JSON.stringify({v:2,app:'apkg-quiz',name:meta.name,at:meta.at,total:meta.total,tree:meta.treeData,qs,scores:sc2,stars:starsR?.val||[]});
+  const blob=new Blob([payload],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=meta.name.replace(/[^a-z0-9]/gi,'_').slice(0,60)+'.json'; a.click();
+}
+
+async function importJSON(file){
+  const text=await file.text(); let data;
+  try{ data=JSON.parse(text) }catch(e){ throw new Error('Invalid JSON file.') }
+  if(data.v!==2||data.app!=='apkg-quiz') throw new Error('Not an APKG Quiz backup file.');
+  setStep('p1','done'); setStep('p2','done'); setStep('p3','done'); setStep('p4','done'); setStep('p5','active');
+  const restored=restoreTree(data.tree);
+  rootNodes=restored.rootNodes; nodeByKey=restored.nodeByKey;
+  fileId='f'+Date.now(); fileName=data.name; qCache={};
+  for(const[pathKey,qs] of Object.entries(data.qs||{})){ qCache[pathKey]=qs; if(qs.length) await saveQuestions(fileId,pathKey,qs) }
+  scores=data.scores||{};
+  for(const[pathKey,val] of Object.entries(scores)) await saveScore(fileId,pathKey,val);
+  starredSids=new Set(data.stars||[]);
+  await saveStars();
+  await saveFileMeta(fileId,fileName,data.total,data.tree);
+  navStack=[]; setStep('p5','done'); showBrowser();
+}
+
+// ═══════════════════════════════════════════════════
+// BROWSER
+// ═══════════════════════════════════════════════════
+function curNode(){ return navStack.length?navStack[navStack.length-1]:null }
+
+function showBrowser(){
+  const node=curNode();
+  const children=node?node.children:rootNodes;
+  const totalCards=node?node.totalCount:rootNodes.reduce((s,n)=>s+n.totalCount,0);
+  const title=node?node.name:fileName;
+  const sub=node?(navStack.length>1?navStack.slice(0,-1).map(n=>n.name).join(' › '):fileName):'Select a deck';
+  tb(title,sub,navStack.length>0,true,true);
+  renderBreadcrumb();
+  $('st-sub').textContent=children.length;
+  $('st-cards').textContent=totalCards;
+  const best=node?getBest(node.pathKey):0;
+  $('st-best').textContent=best?best+'%':'—';
+  const sec=$('deck-section'); sec.innerHTML='';
+
+  // Starred banner (only at root level or if starred questions exist in scope)
+  if(starredSids.size>0){
+    const cnt=starredSids.size;
+    const banner=document.createElement('div'); banner.className='starred-banner';
+    banner.innerHTML=`<div class="sb-row"><span class="sb-icon">⭐</span><div class="sb-info"><div class="sb-title">Starred Questions</div><div class="sb-sub">${cnt} question${cnt!==1?'s':''} bookmarked</div></div><div class="sb-btns"><button class="sb-browse-btn" onclick="openBrowseStarred()">Browse</button><button class="sb-quiz-btn" onclick="startQuizFromStarred()">▶ Quiz</button></div></div>`;
+    sec.appendChild(banner);
+  }
+
+  if(!children.length&&node){
+    const cnt=node.totalCount;
+    const div=document.createElement('div'); div.className='leaf-card';
+    const starCnt=getNodeStarCount(node);
+    div.innerHTML=`<div class="leaf-icon">📋</div><div class="leaf-name">${esc(node.name)}</div><div class="leaf-count">${cnt} question${cnt!==1?'s':''}</div>`;
+    div.innerHTML+=`<div class="leaf-btns"><button class="leaf-quiz-btn" onclick="openQuizModal(nodeByKey['${node.pathKey}'])">▶ Start Quiz</button><button class="leaf-browse-btn" onclick="openBrowse(nodeByKey['${node.pathKey}'])">📖 Browse &amp; Star</button></div>`;
+    sec.appendChild(div);
+    showScreen('sb'); return;
+  }
+
+  for(const child of children){
+    const hasKids=child.children.length>0, cnt=child.totalCount, best2=getBest(child.pathKey);
+    const starCnt=getNodeStarCount(child);
+    const div=document.createElement('div'); div.className='deck-item';
+    const rowDiv=document.createElement('div'); rowDiv.className='deck-row';
+    rowDiv.innerHTML=`<span class="deck-folder-icon">${hasKids?'📁':'📋'}</span><span class="deck-name"><div class="deck-name-text">${esc(child.name)}</div>${hasKids?`<div class="deck-name-sub">${child.children.length} subdeck${child.children.length!==1?'s':''}</div>`:''}</span><div class="deck-right">${best2?`<span class="deck-best">${best2}%</span>`:''}${starCnt?`<span class="deck-star-cnt">⭐${starCnt}</span>`:''}<span class="deck-count">${cnt}</span>${hasKids?`<span class="deck-arrow">›</span>`:''}</div>`;
+    rowDiv.onclick=()=>{ navStack.push(child); showBrowser() };
+    div.appendChild(rowDiv);
+    if(cnt>0){
+      const foot=document.createElement('div'); foot.className='deck-foot';
+      foot.innerHTML=`<button class="foot-btn quiz">▶ Quiz</button><div class="foot-sep"></div><button class="foot-btn browse-q">📖 Browse</button><div class="foot-sep"></div><button class="foot-btn pdf">⬇ PDF</button>`;
+      foot.querySelector('.foot-btn.quiz').onclick=e=>{ e.stopPropagation(); openQuizModal(child) };
+      foot.querySelector('.foot-btn.browse-q').onclick=e=>{ e.stopPropagation(); openBrowse(child) };
+      foot.querySelector('.foot-btn.pdf').onclick=e=>{ e.stopPropagation(); exportPDF(child) };
+      div.appendChild(foot);
+    }
+    sec.appendChild(div);
+  }
+
+  if(node&&node.totalCount>0&&children.length>0){
+    const row=document.createElement('div'); row.className='all-quiz-row';
+    row.innerHTML=`<button class="all-quiz-btn">▶ Quiz All ${node.totalCount} Cards in "${esc(node.name)}"</button>`;
+    row.querySelector('button').onclick=()=>openQuizModal(node);
+    sec.appendChild(row);
+  }
+  showScreen('sb');
+}
+
+function getNodeStarCount(node){
+  // Count how many starred sids appear in this node's questions (approx: use qCache)
+  if(!starredSids.size) return 0;
+  let cnt=0;
+  function walk(n){
+    (qCache[n.pathKey]||[]).forEach(q=>{ if(q.sid&&starredSids.has(q.sid)) cnt++ });
+    n.children.forEach(walk);
+  }
+  walk(node); return cnt;
+}
+
+function renderBreadcrumb(){
+  const bc=$('breadcrumb'); bc.innerHTML='';
+  function addItem(label,onclick,isCur){
+    const s=document.createElement('span'); s.className='bc'+(isCur?' cur':''); s.textContent=label;
+    if(!isCur) s.onclick=onclick; bc.appendChild(s);
+  }
+  function addSep(){ const s=document.createElement('span'); s.className='bc-sep'; s.textContent=' › '; bc.appendChild(s) }
+  addItem(fileName,()=>{ navStack=[]; showBrowser() },navStack.length===0);
+  navStack.forEach((node,i)=>{ addSep(); addItem(node.name,()=>{ navStack=navStack.slice(0,i+1); showBrowser() },i===navStack.length-1) });
+  bc.scrollLeft=bc.scrollWidth;
+}
+
+function navBack(){
+  const screens=['sq','sres','srev','sset','sbrowse'];
+  for(const s of screens){
+    if(!$(s).classList.contains('hidden')){
+      if(s==='sq'&&!confirm('Leave quiz? Progress will be lost.')) return;
+      if(s==='sbrowse'){ showBrowser(); return }
+      showBrowser(); return;
+    }
+  }
+  if(navStack.length){ navStack.pop(); showBrowser() }
+}
+
+function getBest(pathKey){ return scores[pathKey]?.best||0 }
+
+// ═══════════════════════════════════════════════════
+// BROWSE SCREEN
+// ═══════════════════════════════════════════════════
+async function openBrowse(node){
+  tb(`Browse · ${node.name}`,`${node.totalCount} questions`,true,true,false);
+  browseFilter='all'; browseExpanded=new Set();
+  $('ft-all').className='ftab on'; $('ft-starred').className='ftab starred-tab';
+  $('search-bar').className='search-bar'; $('search-input').value='';
+  browseQ=await collectQ(node);
+  // Update FAB
+  const fab=$('browse-fab'); fab.classList.toggle('hidden',starredSids.size===0);
+  $('fab-cnt').textContent=starredSids.size;
+  renderBrowse();
+  showScreen('sbrowse');
+}
+
+async function openBrowseStarred(){
+  tb('Starred Questions',`${starredSids.size} bookmarked`,true,true,false);
+  browseFilter='starred'; browseExpanded=new Set();
+  $('ft-all').className='ftab'; $('ft-starred').className='ftab starred-tab on';
+  $('search-bar').className='search-bar'; $('search-input').value='';
+  // Collect all questions across whole tree
+  const all=[];
+  async function walkAll(n){
+    if(!qCache[n.pathKey]){ const saved=await loadQuestions(fileId,n.pathKey); if(saved) qCache[n.pathKey]=saved; else qCache[n.pathKey]=n.ownQ||[] }
+    all.push(...(qCache[n.pathKey]||[]));
+    for(const c of n.children) await walkAll(c);
+  }
+  for(const r of rootNodes) await walkAll(r);
+  browseQ=all;
+  const fab=$('browse-fab'); fab.classList.remove('hidden');
+  $('fab-cnt').textContent=starredSids.size;
+  renderBrowse();
+  showScreen('sbrowse');
+}
+
+function setBrowseFilter(f){
+  browseFilter=f;
+  $('ft-all').className='ftab'+(f==='all'?' on':'');
+  $('ft-starred').className='ftab starred-tab'+(f==='starred'?' on':'');
+  renderBrowse();
+}
+
+function toggleSearch(){
+  const bar=$('search-bar'); const isOpen=bar.classList.contains('open');
+  bar.classList.toggle('open',!isOpen);
+  if(!isOpen) $('search-input').focus(); else { $('search-input').value=''; renderBrowse(); }
+}
+
+function renderBrowse(){
+  const search=($('search-input').value||'').toLowerCase().trim();
+  const L=['A','B','C','D'];
+  let visible=browseQ;
+  if(browseFilter==='starred') visible=visible.filter(q=>q.sid&&starredSids.has(q.sid));
+  if(search) visible=visible.filter(q=>strip(q.q).toLowerCase().includes(search)||q.opts.some(o=>o.toLowerCase().includes(search)));
+  const list=$('browse-list'); list.innerHTML='';
+  if(!visible.length){
+    list.innerHTML=`<div class="bq-empty"><div class="bq-empty-icon">${browseFilter==='starred'?'⭐':'🔍'}</div><div>${browseFilter==='starred'?'No starred questions yet. Tap ☆ to star.':search?'No questions match your search.':'No questions found.'}</div></div>`;
+    return;
+  }
+  visible.forEach((q,i)=>{
+    const sid=q.sid||''; const isStarred=sid&&starredSids.has(sid);
+    const isExpanded=browseExpanded.has(sid||i);
+    const div=document.createElement('div'); div.className='bq-item';
+    const optsHTML=q.opts.map((o,oi)=>`<div class="bq-opt${oi===q.correct?' correct':''}"><span class="bq-ol">${L[oi]}</span><span>${esc(o)}${oi===q.correct?' ✓':''}</span></div>`).join('');
+    const expHTML=q.exp?`<div class="bq-exp">💡 ${esc(q.exp.slice(0,400))}</div>`:'';
+    const tagHTML=q.tags?`<span class="bq-deck-tag">${esc(q.tags.split(' ')[0])}</span>`:'';
+    div.innerHTML=`
+      <div class="bq-header" onclick="toggleBrowseExpand('${sid||i}','${sid}',this)">
+        <button class="star-btn" data-sid="${sid}" title="${isStarred?'Unstar':'Star'}" onclick="event.stopPropagation();toggleStar('${sid}')">${isStarred?'⭐':'☆'}</button>
+        <div class="bq-qtext">${san(q.q)}</div>
+        <span class="bq-expand${isExpanded?' open':''}">▼</span>
+      </div>
+      <div class="bq-body${isExpanded?' open':''}">
+        <div class="bq-opts">${optsHTML}</div>
+        <div class="bq-meta">${tagHTML}</div>
+        ${expHTML}
+      </div>`;
+    list.appendChild(div);
+  });
+  // Update FAB
+  const fab=$('browse-fab'); fab.classList.toggle('hidden',starredSids.size===0);
+  $('fab-cnt').textContent=starredSids.size;
+}
+
+function toggleBrowseExpand(key,sid,headerEl){
+  if(browseExpanded.has(key)) browseExpanded.delete(key); else browseExpanded.add(key);
+  const item=headerEl.parentElement;
+  item.querySelector('.bq-body').classList.toggle('open',browseExpanded.has(key));
+  item.querySelector('.bq-expand').classList.toggle('open',browseExpanded.has(key));
+}
+
+// ═══════════════════════════════════════════════════
+// QUIZ MODAL
+// ═══════════════════════════════════════════════════
+async function openQuizModal(node){
+  quizModalNode=node;
+  const qs=await collectQ(node);
+  $('qm-title').textContent=node.name;
+  $('qm-sub').textContent=`${qs.length} question${qs.length!==1?'s':''} available`;
+  // Sync modal toggles with cfg
+  $('qm-tog-sh').checked=cfg.shuffle;
+  $('qm-tog-sub').checked=cfg.subs;
+  $('qm-tog-ex').checked=cfg.exp;
+  $('qm-tog-star').checked=false; cfg.onlyStarred=false;
+  // Count starred in this node
+  const starInNode=qs.filter(q=>q.sid&&starredSids.has(q.sid)).length;
+  const starRow=$('qm-starred-row');
+  starRow.classList.toggle('hidden',starInNode===0);
+  $('qm-starred-cnt').textContent=`${starInNode} starred in this deck`;
+  // Sync segment buttons
+  syncSeg('qm-count',cfg.count);
+  syncSeg('qm-timer',cfg.timer);
+  $('quiz-modal-overlay').classList.remove('hidden');
+}
+
+function syncSeg(groupId,val){
+  document.querySelectorAll(`#${groupId} .seg`).forEach(b=>{
+    const bval=parseInt(b.getAttribute('onclick').match(/,(\d+)\)/)?.[1]??'-1');
+    b.classList.toggle('on',bval===val);
+  });
+}
+
+function pickModal(el,key,val){
+  cfg[key]=val;
+  el.closest('.seg-grp').querySelectorAll('.seg').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function closeModal(e){ if(e.target.id==='quiz-modal-overlay') $('quiz-modal-overlay').classList.add('hidden') }
+
+async function confirmStartQuiz(){
+  $('quiz-modal-overlay').classList.add('hidden');
+  if(!quizModalNode) return;
+  await startQuiz(quizModalNode);
+}
+
+// ═══════════════════════════════════════════════════
+// COLLECT QUESTIONS
+// ═══════════════════════════════════════════════════
+async function collectQ(node){
+  async function walk(n){
+    let qs=[];
+    if(!qCache[n.pathKey]){ const saved=await loadQuestions(fileId,n.pathKey); if(saved) qCache[n.pathKey]=saved; else qCache[n.pathKey]=n.ownQ||[] }
+    qs.push(...(qCache[n.pathKey]||[]));
+    if(cfg.subs) for(const c of n.children) qs.push(...(await walk(c)));
+    return qs;
+  }
+  let qs=await walk(node);
+  if(cfg.onlyStarred) qs=qs.filter(q=>q.sid&&starredSids.has(q.sid));
+  return qs;
+}
+
+// Collect ALL starred across whole file tree
+async function collectStarred(){
+  const all=[];
+  async function walkAll(n){
+    if(!qCache[n.pathKey]){ const saved=await loadQuestions(fileId,n.pathKey); if(saved) qCache[n.pathKey]=saved; else qCache[n.pathKey]=n.ownQ||[] }
+    all.push(...(qCache[n.pathKey]||[]).filter(q=>q.sid&&starredSids.has(q.sid)));
+    for(const c of n.children) await walkAll(c);
+  }
+  for(const r of rootNodes) await walkAll(r);
+  return all;
+}
+
+async function startQuizFromStarred(){
+  if(!starredSids.size){ alert('No starred questions yet. Browse a deck and tap ☆ to star questions.'); return }
+  const qs=await collectStarred();
+  if(!qs.length){ alert('No starred questions found.'); return }
+  await startQuizWithQ(qs, '⭐ Starred Questions', null);
+}
+
+// ═══════════════════════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════════════════════
+async function startQuiz(node){
+  activeNode=node;
+  let qs=await collectQ(node);
+  if(!qs.length){ alert(`No MCQ questions found in "${node.name}".`); return }
+  await startQuizWithQ(qs, node.name, node);
+}
+
+async function startQuizWithQ(qs, title, node){
+  activeNode=node;
+  if(cfg.shuffle){ for(let i=qs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[qs[i],qs[j]]=[qs[j],qs[i]]} }
+  const lim=cfg.count||qs.length;
+  roundQ=qs.slice(0,Math.min(lim,qs.length));
+  roundRes=[]; qi=0; sc=0; streak=0; maxSt=0; ncorr=0; answered=false;
+  clearInterval(tmrTick);
+  $('tmr').style.display=cfg.timer>0?'block':'none';
+  tb(title,`Quiz · ${roundQ.length} questions`,true,false,false);
+  showScreen('sq'); renderQ();
+}
+
+function renderQ(){
+  if(qi>=roundQ.length){ endQuiz(); return }
+  answered=false; clearInterval(tmrTick);
+  const q=roundQ[qi],tot=roundQ.length;
+  const L=['A','B','C','D'];
+  $('pf').style.width=Math.round(qi/tot*100)+'%';
+  $('ql').textContent=`Q${qi+1} / ${tot}`;
+  $('qsc').textContent=sc; $('qst').textContent=streak;
+  $('stk').style.display=streak>=2?'flex':'none';
+  const isStarred=q.sid&&starredSids.has(q.sid);
+  $('qb').innerHTML=`
+    <div class="q-card">
+      ${q.tags?`<div class="q-tags"><span class="tag tag-deck">${esc(q.tags.split(' ')[0])}</span></div>`:''}
+      <div class="q-star-row"><button id="qsb" class="q-star-btn${isStarred?' on':''}" data-sid="${q.sid||''}" onclick="toggleStar('${q.sid||''}');syncQStarBtn('${q.sid||''}')">${isStarred?'⭐':'☆'} ${isStarred?'Starred':'Star'}</button></div>
+      <div class="q-text">${san(q.q)}</div>
+      <div class="options">${q.opts.map((o,i)=>`<button class="opt" id="o${i}" onclick="doAnswer(${i})"><span class="opt-L">${L[i]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+      <div id="eb"></div>
+    </div>
+    <button class="next-btn hidden" id="nx" onclick="nextQ()">${qi+1<tot?'Next Question →':'See Results →'}</button>`;
+  if(cfg.timer>0){
+    const tf=$('tmf'); tf.style.transition='none'; tf.style.width='100%';
+    setTimeout(()=>{tf.style.transition=`width ${cfg.timer}s linear`;tf.style.width='0%'},60);
+    let el=0; tmrTick=setInterval(()=>{ el++; if(el>=cfg.timer&&!answered) autoFail() },1000);
+  }
+}
+
+function autoFail(){
+  if(answered)return; answered=true; clearInterval(tmrTick); streak=0;
+  const q=roundQ[qi];
+  for(let i=0;i<q.opts.length;i++){const b=$('o'+i);if(b){b.disabled=true;if(i===q.correct)b.classList.add('correct')}}
+  showExp(q,"⏱ Time's up!"); $('nx').classList.remove('hidden');
+  roundRes.push({q,ui:-1,ok:false});
+}
+
+function doAnswer(idx){
+  if(answered)return; answered=true; clearInterval(tmrTick);
+  const q=roundQ[qi],ok=idx===q.correct;
+  if(ok){sc++;streak++;ncorr++;maxSt=Math.max(maxSt,streak)}else streak=0;
+  $('qsc').textContent=sc; $('qst').textContent=streak;
+  $('stk').style.display=streak>=2?'flex':'none';
+  for(let i=0;i<q.opts.length;i++){const b=$('o'+i);b.disabled=true;if(i===q.correct)b.classList.add('correct');else if(i===idx&&!ok)b.classList.add('wrong')}
+  showExp(q,ok?'✓ Correct!':'✗ Incorrect — Correct: '+esc(q.opts[q.correct]));
+  $('nx').classList.remove('hidden'); roundRes.push({q,ui:idx,ok});
+}
+
+function showExp(q,title){
+  if(!cfg.exp&&!q.exp){$('eb').innerHTML='';return}
+  $('eb').innerHTML=`<div class="exp"><div class="exp-t">${title}</div>${q.exp?`<div>${esc(q.exp).slice(0,600)}</div>`:''}${q.ref?`<div class="exp-ref">📖 ${esc(q.ref.slice(0,120))}</div>`:''}</div>`;
+}
+
+function nextQ(){ qi++; renderQ() }
+
+function endQuiz(){
+  clearInterval(tmrTick);
+  const tot=roundQ.length, pct=Math.round(ncorr/tot*100);
+  if(activeNode){
+    if(!scores[activeNode.pathKey]) scores[activeNode.pathKey]={best:0,rounds:0};
+    scores[activeNode.pathKey].rounds++;
+    if(pct>scores[activeNode.pathKey].best) scores[activeNode.pathKey].best=pct;
+    saveScore(fileId,activeNode.pathKey,scores[activeNode.pathKey]);
+  }
+  tb('Results','Quiz complete',true,false,false); showScreen('sres');
+  const g=pct>=90?'Outstanding! 🏆':pct>=75?'Well done! 🎯':pct>=60?'Keep going! 📚':'More review needed 💪';
+  const wrongQ=roundRes.filter(r=>!r.ok);
+  $('res-body').innerHTML=`
+    <div class="res-card">
+      <div class="res-pct">${pct}%</div>
+      <div class="res-grade">${g}</div>
+      <div class="res-sub">${ncorr} of ${tot} correct · Best streak: ${maxSt}</div>
+      <div class="res-bar-wrap"><div class="res-bar" id="rb" style="width:0%"></div></div>
+      <div class="res-stats">
+        <div class="rst"><div class="rst-v">${sc}</div><div class="rst-l">Points</div></div>
+        <div class="rst"><div class="rst-v">${ncorr}/${tot}</div><div class="rst-l">Correct</div></div>
+        <div class="rst"><div class="rst-v">${maxSt}</div><div class="rst-l">Streak</div></div>
+        <div class="rst"><div class="rst-v">${activeNode?getBest(activeNode.pathKey):pct}%</div><div class="rst-l">Best</div></div>
+      </div>
+      <div class="res-btns">
+        <button class="res-btn-p" onclick="startQuiz(activeNode)">▶ Play Again</button>
+        ${wrongQ.length?`<button class="res-btn-s" onclick="retryWrong()">Retry Wrong (${wrongQ.length})</button>`:''}
+        <button class="res-btn-s" onclick="showReview()">Review</button>
+        <button class="res-btn-s" onclick="showBrowser()">Decks</button>
+      </div>
+    </div>`;
+  setTimeout(()=>{const b=$('rb');if(b)b.style.width=pct+'%'},100);
+}
+
+async function retryWrong(){
+  const wrong=roundRes.filter(r=>!r.ok).map(r=>r.q);
+  if(!wrong.length) return;
+  await startQuizWithQ(wrong,'Retry Wrong Answers',activeNode);
+}
+
+function showReview(){
+  tb('Review','All answers',true,false,false); showScreen('srev');
+  $('rev-body').innerHTML=roundRes.map(({q,ui,ok},i)=>`
+    <div class="rev-item">
+      <div class="rev-n">Q${i+1}</div>
+      <div class="rev-q">${esc(strip(q.q).slice(0,130))}${strip(q.q).length>130?'…':''}</div>
+      <div class="rev-a">✓ ${esc(q.opts[q.correct])}</div>
+      ${ok?`<div class="rev-ok">✓ You answered correctly</div>`:ui===-1?`<div class="rev-to">⏱ Timed out</div>`:`<div class="rev-w">✗ You chose: ${esc(q.opts[ui]||'?')}</div>`}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// PDF EXPORT
+// ═══════════════════════════════════════════════════
+async function exportPDF(node){
+  const qs=await collectQ(node); if(!qs.length){ alert('No questions to export.'); return }
+  const L=['A','B','C','D']; const path=node.parts.join(' › ');
+  let html=`<div class="pdf-cover"><h1>${esc(node.name)}</h1><div class="pdf-meta">${esc(path)}</div><div class="pdf-meta">${qs.length} MCQ Questions</div><div class="pdf-meta">Exported: ${new Date().toLocaleDateString()}</div></div><div class="pdf-sect">${esc(node.name)}</div>`;
+  qs.forEach((q,i)=>{
+    html+=`<div class="pdf-q"><div class="pdf-qn">Question ${i+1} of ${qs.length}</div><div class="pdf-qt">${san(q.q)}</div>${q.opts.map((o,oi)=>`<div class="pdf-opt ${oi===q.correct?'ok':''}"><span class="pdf-ol">${L[oi]}</span><span>${esc(o)}${oi===q.correct?' ✓':''}</span></div>`).join('')}${q.exp?`<div class="pdf-exp">${esc(q.exp.slice(0,400))}</div>`:''}${q.ref?`<div class="pdf-ref">📖 ${esc(q.ref.slice(0,120))}</div>`:''}</div>`;
+  });
+  $('pdf-print').innerHTML=html; $('pdf-print').style.display='block';
+  setTimeout(()=>{window.print();$('pdf-print').style.display='none'},300);
+}
+
+// ═══════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════
+function pick(el,key,val){
+  cfg[key]=val;
+  el.closest('.seg-grp').querySelectorAll('.seg').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+}
+
+async function clearAll(){
+  if(!confirm('Clear ALL saved decks and scores?')) return;
+  const files=await iAll('files'); for(const f of files) await iDel('files',f.key);
+  const qs=await iAll('questions'); for(const q of qs) await iDel('questions',q.key);
+  const sc2=await iAll('scores'); for(const s of sc2) await iDel('scores',s.key);
+  scores={}; qCache={}; starredSids=new Set(); loadSaved(); updateStoInfo();
+}
+
+async function updateStoInfo(){
+  const f=await iAll('files'),q=await iAll('questions');
+  $('sto-info').textContent=`${f.length} deck${f.length!==1?'s':''}, ${q.reduce((s,x)=>s+(x.questions?.length||0),0)} questions`;
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+(async()=>{
+  try{ IDB=await openIDB(); }
+  catch(e){ console.warn('IndexedDB unavailable:',e); IDB=null; }
+  showUpload();
+})();
+</script>
+</body>
+</html>
