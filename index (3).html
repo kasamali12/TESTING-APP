@@ -14433,6 +14433,110 @@ async function confirmNewFile(){
 // ════════════════════════════════════
 // MOVE / COPY — REDESIGNED v2
 // ════════════════════════════════════
+      let _nfType='file';
+let _nfFolderOnly=false;
+
+function openNewFileModal(){
+  _nfType='file';_nfFolderOnly=false;
+  document.getElementById('nf-modal-title').textContent='Create New File';
+  document.getElementById('nf-modal-sub').textContent='Add a new deck or folder to your library';
+  document.getElementById('nf-type-section').style.display='block';
+  document.getElementById('nf-subtitle-field').style.display='block';
+  document.getElementById('nf-confirm-btn').textContent='\u271A Create';
+  document.getElementById('nft-file').classList.add('on');
+  document.getElementById('nft-folder').classList.remove('on');
+  document.getElementById('nf-title-inp').value='';
+  document.getElementById('nf-subtitle-inp').value='';
+  document.getElementById('nf-preview').style.display='none';
+  document.getElementById('nf-ov').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('nf-title-inp').focus(),100);
+}
+
+function openNewFolderModal(){
+  _nfType='folder';_nfFolderOnly=true;
+  document.getElementById('nf-modal-title').textContent='Create New Folder';
+  document.getElementById('nf-modal-sub').textContent='Organise your decks into a folder';
+  document.getElementById('nf-type-section').style.display='none';
+  document.getElementById('nf-subtitle-field').style.display='none';
+  document.getElementById('nf-confirm-btn').textContent='\uD83D\uDCC1 Create Folder';
+  document.getElementById('nf-title-inp').value='';
+  document.getElementById('nf-subtitle-inp').value='';
+  document.getElementById('nf-preview').style.display='none';
+  document.getElementById('nf-ov').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('nf-title-inp').focus(),100);
+}
+
+function closeNewFileModal(){document.getElementById('nf-ov').classList.add('hidden')}
+
+function selectNewFileType(type){
+  _nfType=type;
+  document.getElementById('nft-file').classList.toggle('on',type==='file');
+  document.getElementById('nft-folder').classList.toggle('on',type==='folder');
+  document.getElementById('nf-subtitle-field').style.display=type==='file'?'block':'none';
+  updateNfPreview();
+}
+
+function updateNfPreview(){
+  const title=(document.getElementById('nf-title-inp').value||'').trim();
+  const sub=(document.getElementById('nf-subtitle-inp').value||'').trim();
+  const prev=document.getElementById('nf-preview');
+  if(!title){prev.style.display='none';return}
+  prev.style.display='block';
+  const isFolder=(_nfFolderOnly||_nfType==='folder');
+  document.getElementById('nf-prev-title').textContent=(isFolder?'\uD83D\uDCC1 ':'\uD83D\uDCC4 ')+title;
+  document.getElementById('nf-prev-sub').textContent=sub||(isFolder?'Folder':'No subtitle');
+}
+
+async function confirmNewFile(){
+  const title=(document.getElementById('nf-title-inp').value||'').trim();
+  if(!title){toast('Please enter a title','error');document.getElementById('nf-title-inp').focus();return}
+  const subtitle=(document.getElementById('nf-subtitle-inp').value||'').trim();
+  const isFolder=(_nfFolderOnly||_nfType==='folder');
+
+  const parent=navStack.length?navStack[navStack.length-1]:null;
+  const parentParts=parent?parent.parts:[];
+  const newParts=[...parentParts,title];
+  const newKey=newParts.join('\x00');
+  const siblings=parent?parent.children:rootNodes;
+
+  if(siblings.find(c=>c.name.toLowerCase()===title.toLowerCase())){
+    toast((isFolder?'A folder':'A deck')+' with that name already exists','error');return;
+  }
+
+  const newNode={
+    id:isFolder?null:'manual_'+Date.now(),
+    name:title,pathKey:newKey,parts:newParts,
+    children:[],ownQ:[],ownCount:0,totalCount:0,
+    isVirtual:isFolder,
+    _subtitle:subtitle||''
+  };
+  // Register in global nodeByKey
+  nodeByKey[newKey] = newNode;
+
+  if(parent){parent.children.push(newNode);parent.children.sort((a,b)=>natSort(a.name,b.name));}
+  else{rootNodes.push(newNode);rootNodes.sort((a,b)=>natSort(a.name,b.name));}
+
+  if(!isFolder)qCache[newKey]=[];
+
+  if(!fileId&&!isFolder){
+    const nfid='manual_deck_'+Date.now();
+    fileId=nfid;fileName=title;
+    await saveFileMeta(nfid,title+(subtitle?' \u2014 '+subtitle:''),0,serializeTree(rootNodes));
+  } else if(fileId){
+    const meta=await iGet('files',fileId);
+    if(meta)await saveFileMeta(fileId,fileName,meta.total,serializeTree(rootNodes));
+  }
+
+  closeNewFileModal();
+  invalidateFilesCache();
+  _syncLibFab();
+  toast((isFolder?'\uD83D\uDCC1 Folder':'\uD83D\uDCC4 Deck')+' "'+title+'" created'+(subtitle&&!isFolder?' \u00B7 '+subtitle:''),'success');
+  renderLib();
+}
+
+// ════════════════════════════════════
+// MOVE / COPY — REDESIGNED v2 (FIXED)
+// ════════════════════════════════════
 let _mcNode=null;
 let _mcDestKey=null;
 let _mcMode='move';
@@ -14669,6 +14773,14 @@ async function confirmMC(){
   function findParent(nodes,target){
     for(const n of nodes){if(n.children.includes(target))return n;const r=findParent(n.children,target);if(r)return r}return null;
   }
+
+  // Essential helper: update nodeByKey after a pathKey change
+  function updateNodeByKey(n, oldKey){
+    if(oldKey) delete nodeByKey[oldKey];
+    nodeByKey[n.pathKey] = n;
+    n.children.forEach(c => updateNodeByKey(c, null));
+  }
+
   const currentParent=findParent(rootNodes,node)||null;
   const destNode=destKey===''?null:_mcNodeByPk(destKey);
   const destChildren=destNode?destNode.children:rootNodes;
@@ -14679,9 +14791,11 @@ async function confirmMC(){
     else rootNodes=rootNodes.filter(c=>c!==node);
     const destParts=destNode?destNode.parts:[];
     function rekey(n,pp){
-      const np=[...pp,n.name];const ok=n.pathKey;
+      const oldKey=n.pathKey;
+      const np=[...pp,n.name];
       n.pathKey=np.join('\x00');n.parts=np;
-      if(qCache[ok]!==undefined){qCache[n.pathKey]=qCache[ok];delete qCache[ok];}
+      updateNodeByKey(n, oldKey);
+      if(qCache[oldKey]!==undefined){qCache[n.pathKey]=qCache[oldKey];delete qCache[oldKey];}
       n.children.forEach(c=>rekey(c,np));
     }
     rekey(node,destParts);
@@ -14694,6 +14808,7 @@ async function confirmMC(){
       const np=[...pp,n.name];
       const cl={id:n.id?n.id+'_cp':null,name:n.name,pathKey:np.join('\x00'),parts:np,
         children:[],ownQ:[...(n.ownQ||[])],ownCount:n.ownCount,totalCount:n.totalCount,isVirtual:n.isVirtual};
+      nodeByKey[cl.pathKey] = cl;
       const srcQ=qCache[n.pathKey]||[];
       if(srcQ.length)qCache[cl.pathKey]=srcQ.map(q=>({...q}));
       cl.children=n.children.map(c=>deepClone(c,np));
@@ -14702,7 +14817,20 @@ async function confirmMC(){
     const clone=deepClone(node,destParts);
     let finalName=clone.name;let suf=1;
     while(destChildren.find(c=>c.name.toLowerCase()===finalName.toLowerCase())){finalName=node.name+' ('+(suf++)+')'}
-    if(finalName!==clone.name){clone.name=finalName;clone.pathKey=(destParts.length?destParts.join('\x00')+'\x00':'')+finalName;}
+    if(finalName!==clone.name){
+      const oldBase=clone.pathKey;
+      clone.name=finalName;
+      const newBase=(destParts.length?destParts.join('\x00')+'\x00':'')+finalName;
+      function rekeyClone(n, oldPrefix, newPrefix){
+        const oldK=n.pathKey;
+        n.pathKey=n.pathKey.replace(oldPrefix, newPrefix);
+        n.parts=n.pathKey.split('\x00');
+        updateNodeByKey(n, oldK);
+        if(qCache[oldK]!==undefined){qCache[n.pathKey]=qCache[oldK];delete qCache[oldK];}
+        n.children.forEach(c=>rekeyClone(c, oldPrefix, newPrefix));
+      }
+      rekeyClone(clone, oldBase, newBase);
+    }
     if(destNode){destNode.children.push(clone);destNode.children.sort((a,b)=>natSort(a.name,b.name));}
     else{rootNodes.push(clone);rootNodes.sort((a,b)=>natSort(a.name,b.name));}
     toast('📋 "'+node.name+'" copied'+(finalName!==node.name?' as "'+finalName+'"':''),'success');
@@ -14726,13 +14854,13 @@ async function _flushWrites(){
   }
 }
 // Wrap saveScore to use queue
-const _origSaveScore=window.saveScore;
-if(typeof _origSaveScore==='function'){
-  window.saveScore=function(fk,pk,val){
-    queueWrite('scores',`${fk}__${pk}`,val);
+if(typeof window.saveScore === 'function'){
+  const _origSaveScore = window.saveScore;
+  window.saveScore = function(fk, pk, val){
+    queueWrite('scores', `${fk}__${pk}`, val);
     return Promise.resolve();
   };
-}
+   }    
 
 </script>
 
