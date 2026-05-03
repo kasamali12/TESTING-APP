@@ -14326,541 +14326,438 @@ function _syncLibFab(){
   // Show FABs whenever the Library tab is active
   const libVisible=!document.getElementById('slib').classList.contains('hidden');
   fab.style.display=libVisible?'flex':'none';
-}
-
 // ════════════════════════════════════
-// NEW FILE / FOLDER MODAL
+// CREATE NEW FILE / FOLDER
 // ════════════════════════════════════
-let _nfType='file';
-let _nfFolderOnly=false;
+let _nfType = 'file';
+let _nfFolderOnly = false;
 
-function openNewFileModal(){
-  _nfType='file';_nfFolderOnly=false;
-  document.getElementById('nf-modal-title').textContent='Create New File';
-  document.getElementById('nf-modal-sub').textContent='Add a new deck or folder to your library';
-  document.getElementById('nf-type-section').style.display='block';
-  document.getElementById('nf-subtitle-field').style.display='block';
-  document.getElementById('nf-confirm-btn').textContent='\u271A Create';
+function openNewFileModal() {
+  _nfType = 'file'; _nfFolderOnly = false;
+  document.getElementById('nf-modal-title').textContent = 'Create New File';
+  document.getElementById('nf-modal-sub').textContent = 'Add a new deck or folder to your library';
+  document.getElementById('nf-type-section').style.display = 'block';
+  document.getElementById('nf-subtitle-field').style.display = 'block';
+  document.getElementById('nf-confirm-btn').textContent = '\u271A Create';
   document.getElementById('nft-file').classList.add('on');
   document.getElementById('nft-folder').classList.remove('on');
-  document.getElementById('nf-title-inp').value='';
-  document.getElementById('nf-subtitle-inp').value='';
-  document.getElementById('nf-preview').style.display='none';
+  document.getElementById('nf-title-inp').value = '';
+  document.getElementById('nf-subtitle-inp').value = '';
+  document.getElementById('nf-preview').style.display = 'none';
   document.getElementById('nf-ov').classList.remove('hidden');
-  setTimeout(()=>document.getElementById('nf-title-inp').focus(),100);
+  setTimeout(() => document.getElementById('nf-title-inp').focus(), 100);
 }
 
-function openNewFolderModal(){
-  _nfType='folder';_nfFolderOnly=true;
-  document.getElementById('nf-modal-title').textContent='Create New Folder';
-  document.getElementById('nf-modal-sub').textContent='Organise your decks into a folder';
-  document.getElementById('nf-type-section').style.display='none';
-  document.getElementById('nf-subtitle-field').style.display='none';
-  document.getElementById('nf-confirm-btn').textContent='\uD83D\uDCC1 Create Folder';
-  document.getElementById('nf-title-inp').value='';
-  document.getElementById('nf-subtitle-inp').value='';
-  document.getElementById('nf-preview').style.display='none';
+function openNewFolderModal() {
+  _nfType = 'folder'; _nfFolderOnly = true;
+  document.getElementById('nf-modal-title').textContent = 'Create New Folder';
+  document.getElementById('nf-modal-sub').textContent = 'Organise your decks into a folder';
+  document.getElementById('nf-type-section').style.display = 'none';
+  document.getElementById('nf-subtitle-field').style.display = 'none';
+  document.getElementById('nf-confirm-btn').textContent = '\uD83D\uDCC1 Create Folder';
+  document.getElementById('nf-title-inp').value = '';
+  document.getElementById('nf-subtitle-inp').value = '';
+  document.getElementById('nf-preview').style.display = 'none';
   document.getElementById('nf-ov').classList.remove('hidden');
-  setTimeout(()=>document.getElementById('nf-title-inp').focus(),100);
+  setTimeout(() => document.getElementById('nf-title-inp').focus(), 100);
 }
 
-function closeNewFileModal(){document.getElementById('nf-ov').classList.add('hidden')}
+function closeNewFileModal() { document.getElementById('nf-ov').classList.add('hidden'); }
 
-function selectNewFileType(type){
-  _nfType=type;
-  document.getElementById('nft-file').classList.toggle('on',type==='file');
-  document.getElementById('nft-folder').classList.toggle('on',type==='folder');
-  document.getElementById('nf-subtitle-field').style.display=type==='file'?'block':'none';
+function selectNewFileType(type) {
+  _nfType = type;
+  document.getElementById('nft-file').classList.toggle('on', type === 'file');
+  document.getElementById('nft-folder').classList.toggle('on', type === 'folder');
+  document.getElementById('nf-subtitle-field').style.display = type === 'file' ? 'block' : 'none';
   updateNfPreview();
 }
 
-function updateNfPreview(){
-  const title=(document.getElementById('nf-title-inp').value||'').trim();
-  const sub=(document.getElementById('nf-subtitle-inp').value||'').trim();
-  const prev=document.getElementById('nf-preview');
-  if(!title){prev.style.display='none';return}
-  prev.style.display='block';
-  const isFolder=(_nfFolderOnly||_nfType==='folder');
-  document.getElementById('nf-prev-title').textContent=(isFolder?'\uD83D\uDCC1 ':'\uD83D\uDCC4 ')+title;
-  document.getElementById('nf-prev-sub').textContent=sub||(isFolder?'Folder':'No subtitle');
+function updateNfPreview() {
+  const title = (document.getElementById('nf-title-inp').value || '').trim();
+  const sub = (document.getElementById('nf-subtitle-inp').value || '').trim();
+  const prev = document.getElementById('nf-preview');
+  if (!title) { prev.style.display = 'none'; return; }
+  prev.style.display = 'block';
+  const isFolder = (_nfFolderOnly || _nfType === 'folder');
+  document.getElementById('nf-prev-title').textContent = (isFolder ? '\uD83D\uDCC1 ' : '\uD83D\uDCC4 ') + title;
+  document.getElementById('nf-prev-sub').textContent = sub || (isFolder ? 'Folder' : 'No subtitle');
 }
 
-async function confirmNewFile(){
-  const title=(document.getElementById('nf-title-inp').value||'').trim();
-  if(!title){toast('Please enter a title','error');document.getElementById('nf-title-inp').focus();return}
-  const subtitle=(document.getElementById('nf-subtitle-inp').value||'').trim();
-  const isFolder=(_nfFolderOnly||_nfType==='folder');
+async function confirmNewFile() {
+  const title = (document.getElementById('nf-title-inp').value || '').trim();
+  if (!title) { toast('Please enter a title', 'error'); document.getElementById('nf-title-inp').focus(); return; }
+  const subtitle = (document.getElementById('nf-subtitle-inp').value || '').trim();
+  const isFolder = (_nfFolderOnly || _nfType === 'folder');
 
-  const parent=navStack.length?navStack[navStack.length-1]:null;
-  const parentParts=parent?parent.parts:[];
-  const newParts=[...parentParts,title];
-  const newKey=newParts.join('\x00');
-  const siblings=parent?parent.children:rootNodes;
+  const parent = navStack.length ? navStack[navStack.length - 1] : null;
+  const parentParts = parent ? parent.parts : [];
+  const newParts = [...parentParts, title];
+  const newKey = newParts.join('\x00');
+  const siblings = parent ? parent.children : rootNodes;
 
-  if(siblings.find(c=>c.name.toLowerCase()===title.toLowerCase())){
-    toast((isFolder?'A folder':'A deck')+' with that name already exists','error');return;
+  if (siblings.find(c => c.name.toLowerCase() === title.toLowerCase())) {
+    toast((isFolder ? 'A folder' : 'A deck') + ' with that name already exists', 'error'); return;
   }
 
-  const newNode={
-    id:isFolder?null:'manual_'+Date.now(),
-    name:title,pathKey:newKey,parts:newParts,
-    children:[],ownQ:[],ownCount:0,totalCount:0,
-    isVirtual:isFolder,
-    _subtitle:subtitle||''
+  const newNode = {
+    id: isFolder ? null : 'manual_' + Date.now(),
+    name: title, pathKey: newKey, parts: newParts,
+    children: [], ownQ: [], ownCount: 0, totalCount: 0,
+    isVirtual: isFolder,
+    _subtitle: subtitle || ''
   };
 
-  if(parent){parent.children.push(newNode);parent.children.sort((a,b)=>natSort(a.name,b.name));}
-  else{rootNodes.push(newNode);rootNodes.sort((a,b)=>natSort(a.name,b.name));}
+  if (parent) { parent.children.push(newNode); parent.children.sort((a, b) => natSort(a.name, b.name)); }
+  else { rootNodes.push(newNode); rootNodes.sort((a, b) => natSort(a.name, b.name)); }
 
-  if(!isFolder)qCache[newKey]=[];
+  if (typeof nodeByKey !== 'undefined') nodeByKey[newKey] = newNode;
+  if (!isFolder) qCache[newKey] = [];
 
-  if(!fileId&&!isFolder){
-    const nfid='manual_deck_'+Date.now();
-    fileId=nfid;fileName=title;
-    await saveFileMeta(nfid,title+(subtitle?' \u2014 '+subtitle:''),0,serializeTree(rootNodes));
-  } else if(fileId){
-    const meta=await iGet('files',fileId);
-    if(meta)await saveFileMeta(fileId,fileName,meta.total,serializeTree(rootNodes));
+  // FIX: Properly initialize library if empty, whether making a file OR folder
+  if (!fileId) {
+    const nfid = 'manual_lib_' + Date.now();
+    fileId = nfid; 
+    fileName = isFolder ? 'My Library' : title;
+    await saveFileMeta(nfid, fileName, 0, serializeTree(rootNodes));
+  } else {
+    const meta = await iGet('files', fileId);
+    if (meta) await saveFileMeta(fileId, fileName, meta.total, serializeTree(rootNodes));
   }
 
   closeNewFileModal();
   invalidateFilesCache();
-  _syncLibFab();
-  toast((isFolder?'\uD83D\uDCC1 Folder':'\uD83D\uDCC4 Deck')+' "'+title+'" created'+(subtitle&&!isFolder?' \u00B7 '+subtitle:''),'success');
+  if (typeof _syncLibFab === 'function') _syncLibFab();
+  
+  toast((isFolder ? '\uD83D\uDCC1 Folder' : '\uD83D\uDCC4 Deck') + ' "' + title + '" created', 'success');
   renderLib();
 }
 
 // ════════════════════════════════════
 // MOVE / COPY — REDESIGNED v2
 // ════════════════════════════════════
-      let _nfType='file';
-let _nfFolderOnly=false;
+let _mcNode = null;
+let _mcDestKey = null;
+let _mcMode = 'move';
+let _mc2BcStack = [];
+let _mc2SearchQ = '';
 
-function openNewFileModal(){
-  _nfType='file';_nfFolderOnly=false;
-  document.getElementById('nf-modal-title').textContent='Create New File';
-  document.getElementById('nf-modal-sub').textContent='Add a new deck or folder to your library';
-  document.getElementById('nf-type-section').style.display='block';
-  document.getElementById('nf-subtitle-field').style.display='block';
-  document.getElementById('nf-confirm-btn').textContent='\u271A Create';
-  document.getElementById('nft-file').classList.add('on');
-  document.getElementById('nft-folder').classList.remove('on');
-  document.getElementById('nf-title-inp').value='';
-  document.getElementById('nf-subtitle-inp').value='';
-  document.getElementById('nf-preview').style.display='none';
-  document.getElementById('nf-ov').classList.remove('hidden');
-  setTimeout(()=>document.getElementById('nf-title-inp').focus(),100);
-}
-
-function openNewFolderModal(){
-  _nfType='folder';_nfFolderOnly=true;
-  document.getElementById('nf-modal-title').textContent='Create New Folder';
-  document.getElementById('nf-modal-sub').textContent='Organise your decks into a folder';
-  document.getElementById('nf-type-section').style.display='none';
-  document.getElementById('nf-subtitle-field').style.display='none';
-  document.getElementById('nf-confirm-btn').textContent='\uD83D\uDCC1 Create Folder';
-  document.getElementById('nf-title-inp').value='';
-  document.getElementById('nf-subtitle-inp').value='';
-  document.getElementById('nf-preview').style.display='none';
-  document.getElementById('nf-ov').classList.remove('hidden');
-  setTimeout(()=>document.getElementById('nf-title-inp').focus(),100);
-}
-
-function closeNewFileModal(){document.getElementById('nf-ov').classList.add('hidden')}
-
-function selectNewFileType(type){
-  _nfType=type;
-  document.getElementById('nft-file').classList.toggle('on',type==='file');
-  document.getElementById('nft-folder').classList.toggle('on',type==='folder');
-  document.getElementById('nf-subtitle-field').style.display=type==='file'?'block':'none';
-  updateNfPreview();
-}
-
-function updateNfPreview(){
-  const title=(document.getElementById('nf-title-inp').value||'').trim();
-  const sub=(document.getElementById('nf-subtitle-inp').value||'').trim();
-  const prev=document.getElementById('nf-preview');
-  if(!title){prev.style.display='none';return}
-  prev.style.display='block';
-  const isFolder=(_nfFolderOnly||_nfType==='folder');
-  document.getElementById('nf-prev-title').textContent=(isFolder?'\uD83D\uDCC1 ':'\uD83D\uDCC4 ')+title;
-  document.getElementById('nf-prev-sub').textContent=sub||(isFolder?'Folder':'No subtitle');
-}
-
-async function confirmNewFile(){
-  const title=(document.getElementById('nf-title-inp').value||'').trim();
-  if(!title){toast('Please enter a title','error');document.getElementById('nf-title-inp').focus();return}
-  const subtitle=(document.getElementById('nf-subtitle-inp').value||'').trim();
-  const isFolder=(_nfFolderOnly||_nfType==='folder');
-
-  const parent=navStack.length?navStack[navStack.length-1]:null;
-  const parentParts=parent?parent.parts:[];
-  const newParts=[...parentParts,title];
-  const newKey=newParts.join('\x00');
-  const siblings=parent?parent.children:rootNodes;
-
-  if(siblings.find(c=>c.name.toLowerCase()===title.toLowerCase())){
-    toast((isFolder?'A folder':'A deck')+' with that name already exists','error');return;
-  }
-
-  const newNode={
-    id:isFolder?null:'manual_'+Date.now(),
-    name:title,pathKey:newKey,parts:newParts,
-    children:[],ownQ:[],ownCount:0,totalCount:0,
-    isVirtual:isFolder,
-    _subtitle:subtitle||''
-  };
-  // Register in global nodeByKey
-  nodeByKey[newKey] = newNode;
-
-  if(parent){parent.children.push(newNode);parent.children.sort((a,b)=>natSort(a.name,b.name));}
-  else{rootNodes.push(newNode);rootNodes.sort((a,b)=>natSort(a.name,b.name));}
-
-  if(!isFolder)qCache[newKey]=[];
-
-  if(!fileId&&!isFolder){
-    const nfid='manual_deck_'+Date.now();
-    fileId=nfid;fileName=title;
-    await saveFileMeta(nfid,title+(subtitle?' \u2014 '+subtitle:''),0,serializeTree(rootNodes));
-  } else if(fileId){
-    const meta=await iGet('files',fileId);
-    if(meta)await saveFileMeta(fileId,fileName,meta.total,serializeTree(rootNodes));
-  }
-
-  closeNewFileModal();
-  invalidateFilesCache();
-  _syncLibFab();
-  toast((isFolder?'\uD83D\uDCC1 Folder':'\uD83D\uDCC4 Deck')+' "'+title+'" created'+(subtitle&&!isFolder?' \u00B7 '+subtitle:''),'success');
-  renderLib();
-}
-
-// ════════════════════════════════════
-// MOVE / COPY — REDESIGNED v2 (FIXED)
-// ════════════════════════════════════
-let _mcNode=null;
-let _mcDestKey=null;
-let _mcMode='move';
-let _mc2BcStack=[];
-let _mc2SearchQ='';
-
-function openMCModal(nodeKey){
-  const node=nget(nodeKey);
-  if(!node){toast('Deck not found','error');return}
-  _mcNode=node;_mcDestKey=null;_mcMode='move';
-  _mc2BcStack=[];_mc2SearchQ='';
-  const ic=document.getElementById('mc2-src-ic');
-  const nm=document.getElementById('mc2-src-name');
-  const mt=document.getElementById('mc2-src-meta');
-  if(ic)ic.textContent=node.children.length?'📂':'📄';
-  if(nm)nm.textContent=node.name;
-  if(mt)mt.textContent=node.totalCount.toLocaleString()+' card'+(node.totalCount!==1?'s':'')+(node.children.length?' · '+node.children.length+' subfolder'+(node.children.length!==1?'s':''):'');
-  document.getElementById('mc2m-move').className='mc2-mode-btn mv on';
-  document.getElementById('mc2m-copy').className='mc2-mode-btn';
-  const si=document.getElementById('mc2-search');if(si)si.value='';
-  const sc2=document.getElementById('mc2-search-clear');if(sc2)sc2.classList.remove('show');
+function openMCModal(nodeKey) {
+  const node = nget(nodeKey);
+  if (!node) { toast('Deck not found', 'error'); return; }
+  _mcNode = node; _mcDestKey = null; _mcMode = 'move';
+  _mc2BcStack = []; _mc2SearchQ = '';
+  
+  const ic = document.getElementById('mc2-src-ic');
+  const nm = document.getElementById('mc2-src-name');
+  const mt = document.getElementById('mc2-src-meta');
+  if (ic) ic.textContent = node.children.length ? '📂' : '📄';
+  if (nm) nm.textContent = node.name;
+  if (mt) mt.textContent = node.totalCount.toLocaleString() + ' card' + (node.totalCount !== 1 ? 's' : '') + (node.children.length ? ' · ' + node.children.length + ' subfolder' + (node.children.length !== 1 ? 's' : '') : '');
+  
+  document.getElementById('mc2m-move').className = 'mc2-mode-btn mv on';
+  document.getElementById('mc2m-copy').className = 'mc2-mode-btn';
+  const si = document.getElementById('mc2-search'); if (si) si.value = '';
+  const sc2 = document.getElementById('mc2-search-clear'); if (sc2) sc2.classList.remove('show');
+  
   mc2ClearDest();
   mc2RenderList();
   mc2RenderBc();
   document.getElementById('mc-ov').classList.remove('hidden');
 }
 
-function closeMCModal(){document.getElementById('mc-ov').classList.add('hidden')}
+function closeMCModal() { document.getElementById('mc-ov').classList.add('hidden'); }
 
-function selectMCMode(m){
-  _mcMode=m;
-  document.getElementById('mc2m-move').className='mc2-mode-btn mv'+(m==='move'?' on':'');
-  document.getElementById('mc2m-copy').className='mc2-mode-btn'+(m==='copy'?' on':'');
+function selectMCMode(m) {
+  _mcMode = m;
+  document.getElementById('mc2m-move').className = 'mc2-mode-btn mv' + (m === 'move' ? ' on' : '');
+  document.getElementById('mc2m-copy').className = 'mc2-mode-btn' + (m === 'copy' ? ' on' : '');
   mc2UpdateFooter();
 }
 
-function mc2RenderBc(){
-  const bc=document.getElementById('mc2-bc');if(!bc)return;
-  let html=`<span class="mc2-bc-item${!_mc2BcStack.length?' cur':''}" onclick="mc2BcGoto(-1)">🏠 Root</span>`;
-  _mc2BcStack.forEach((n,i)=>{
-    html+=`<span class="mc2-bc-sep">›</span>`;
-    html+=`<span class="mc2-bc-item${i===_mc2BcStack.length-1?' cur':''}" onclick="mc2BcGoto(${i})">${esc(n.name)}</span>`;
+function mc2RenderBc() {
+  const bc = document.getElementById('mc2-bc'); if (!bc) return;
+  let html = `<span class="mc2-bc-item${!_mc2BcStack.length ? ' cur' : ''}" onclick="mc2BcGoto(-1)">🏠 Root</span>`;
+  _mc2BcStack.forEach((n, i) => {
+    html += `<span class="mc2-bc-sep">›</span>`;
+    html += `<span class="mc2-bc-item${i === _mc2BcStack.length - 1 ? ' cur' : ''}" onclick="mc2BcGoto(${i})">${esc(n.name)}</span>`;
   });
-  bc.innerHTML=html;
+  bc.innerHTML = html;
 }
 
-function mc2BcGoto(idx){
-  if(idx<0)_mc2BcStack=[];
-  else _mc2BcStack=_mc2BcStack.slice(0,idx+1);
-  _mc2SearchQ='';
-  const si=document.getElementById('mc2-search');if(si)si.value='';
-  const sc2=document.getElementById('mc2-search-clear');if(sc2)sc2.classList.remove('show');
-  mc2RenderList();mc2RenderBc();
+function mc2BcGoto(idx) {
+  if (idx < 0) _mc2BcStack = [];
+  else _mc2BcStack = _mc2BcStack.slice(0, idx + 1);
+  _mc2SearchQ = '';
+  const si = document.getElementById('mc2-search'); if (si) si.value = '';
+  const sc2 = document.getElementById('mc2-search-clear'); if (sc2) sc2.classList.remove('show');
+  mc2RenderList(); mc2RenderBc();
 }
 
-function mc2FilterList(){
-  const si=document.getElementById('mc2-search');
-  _mc2SearchQ=(si?si.value:'').toLowerCase().trim();
-  const sc2=document.getElementById('mc2-search-clear');
-  if(sc2)sc2.classList.toggle('show',!!_mc2SearchQ);
+function mc2FilterList() {
+  const si = document.getElementById('mc2-search');
+  _mc2SearchQ = (si ? si.value : '').toLowerCase().trim();
+  const sc2 = document.getElementById('mc2-search-clear');
+  if (sc2) sc2.classList.toggle('show', !!_mc2SearchQ);
   mc2RenderList();
 }
 
-function mc2ClearSearch(){
-  _mc2SearchQ='';
-  const si=document.getElementById('mc2-search');if(si)si.value='';
-  const sc2=document.getElementById('mc2-search-clear');if(sc2)sc2.classList.remove('show');
+function mc2ClearSearch() {
+  _mc2SearchQ = '';
+  const si = document.getElementById('mc2-search'); if (si) si.value = '';
+  const sc2 = document.getElementById('mc2-search-clear'); if (sc2) sc2.classList.remove('show');
   mc2RenderList();
 }
 
-function mc2CurrentNodes(){
-  const parent=_mc2BcStack.length?_mc2BcStack[_mc2BcStack.length-1]:null;
-  return parent?parent.children:rootNodes;
+function mc2CurrentNodes() {
+  const parent = _mc2BcStack.length ? _mc2BcStack[_mc2BcStack.length - 1] : null;
+  return parent ? parent.children : rootNodes;
 }
 
-function mc2ItemHtml(n,sel,hasKids,subtitle){
-  const kids=n.children.filter(c=>!(_mcNode&&(c.pathKey===_mcNode.pathKey||c.pathKey.startsWith(_mcNode.pathKey+'\x00'))));
-  const kidsCount=kids.length;
-  const sub=subtitle||((n.totalCount?n.totalCount.toLocaleString()+' cards':'Empty')+(kidsCount?' · '+kidsCount+' subfolder'+(kidsCount!==1?'s':''):''));
-  const ic=n.children.length?'📂':'📁';
-  return`<div class="mc2-list-item${sel?' selected':''}" onclick="mc2ItemClick(${JSON.stringify(n.pathKey)},${!!kidsCount})">
+function mc2ItemHtml(n, sel, hasKids, subtitle) {
+  const kids = n.children.filter(c => !(_mcNode && (c.pathKey === _mcNode.pathKey || c.pathKey.startsWith(_mcNode.pathKey + '\x00'))));
+  const kidsCount = kids.length;
+  const sub = subtitle || ((n.totalCount ? n.totalCount.toLocaleString() + ' cards' : 'Empty') + (kidsCount ? ' · ' + kidsCount + ' subfolder' + (kidsCount !== 1 ? 's' : '') : ''));
+  const ic = n.children.length ? '📂' : '📁';
+  return `<div class="mc2-list-item${sel ? ' selected' : ''}" onclick="mc2ItemClick(${JSON.stringify(n.pathKey)},${!!kidsCount})">
     <div class="mc2-item-ic folder">${ic}</div>
     <div class="mc2-item-info">
       <div class="mc2-item-name">${esc(n.name)}</div>
       <div class="mc2-item-meta">${esc(sub)}</div>
     </div>
-    ${sel?'<div class="mc2-item-check">✓</div>':(kidsCount?'<span class="mc2-item-arr">›</span>':'')}
+    ${sel ? '<div class="mc2-item-check">✓</div>' : (kidsCount ? '<span class="mc2-item-arr">›</span>' : '')}
   </div>`;
 }
 
-function mc2RenderList(){
-  const container=document.getElementById('mc2-list');if(!container)return;
-  const src=_mcNode;
+function mc2RenderList() {
+  const container = document.getElementById('mc2-list'); if (!container) return;
+  const src = _mcNode;
 
-  if(_mc2SearchQ){
-    const results=[];
-    function flatten(nodes){
-      nodes.forEach(n=>{
-        if(src&&(n.pathKey===src.pathKey||n.pathKey.startsWith(src.pathKey+'\x00')))return;
-        if(n.name.toLowerCase().includes(_mc2SearchQ))results.push(n);
+  if (_mc2SearchQ) {
+    const results = [];
+    function flatten(nodes) {
+      nodes.forEach(n => {
+        if (src && (n.pathKey === src.pathKey || n.pathKey.startsWith(src.pathKey + '\x00'))) return;
+        if (n.name.toLowerCase().includes(_mc2SearchQ)) results.push(n);
         flatten(n.children);
       });
     }
     flatten(rootNodes);
-    if(!results.length){
-      container.innerHTML=`<div class="mc2-empty"><div class="mc2-empty-ic">🔍</div>No folders match "<strong>${esc(_mc2SearchQ)}</strong>"</div>`;
+    if (!results.length) {
+      container.innerHTML = `<div class="mc2-empty"><div class="mc2-empty-ic">🔍</div>No folders match "<strong>${esc(_mc2SearchQ)}</strong>"</div>`;
       return;
     }
-    container.innerHTML=results.map(n=>{
-      const sel=_mcDestKey===n.pathKey;
-      const path=n.parts.join(' › ');
-      return mc2ItemHtml(n,sel,false,path);
+    container.innerHTML = results.map(n => {
+      const sel = _mcDestKey === n.pathKey;
+      const path = n.parts.join(' › ');
+      return mc2ItemHtml(n, sel, false, path);
     }).join('');
     return;
   }
 
-  const currentNodes=mc2CurrentNodes();
-  let html='';
+  const currentNodes = mc2CurrentNodes();
+  let html = '';
 
-  if(!_mc2BcStack.length){
-    const rootSel=_mcDestKey==='';
-    html+=`<div class="mc2-list-item root-item${rootSel?' selected':''}" onclick="mc2SelectDest('')">
+  if (!_mc2BcStack.length) {
+    const rootSel = _mcDestKey === '';
+    html += `<div class="mc2-list-item root-item${rootSel ? ' selected' : ''}" onclick="mc2SelectDest('')">
       <div class="mc2-item-ic root">🏠</div>
       <div class="mc2-item-info">
         <div class="mc2-item-name">Root — top level</div>
         <div class="mc2-item-meta">Place at the top of your library</div>
       </div>
-      ${rootSel?'<div class="mc2-item-check">✓</div>':''}
+      ${rootSel ? '<div class="mc2-item-check">✓</div>' : ''}
     </div>`;
   }
 
-  if(_mc2BcStack.length){
-    const parentName=_mc2BcStack.length>1?_mc2BcStack[_mc2BcStack.length-2].name:'Root';
-    html+=`<div class="mc2-list-item" onclick="mc2BcGoto(${_mc2BcStack.length-2})">
+  if (_mc2BcStack.length) {
+    const parentName = _mc2BcStack.length > 1 ? _mc2BcStack[_mc2BcStack.length - 2].name : 'Root';
+    html += `<div class="mc2-list-item" onclick="mc2BcGoto(${_mc2BcStack.length - 2})">
       <div class="mc2-item-ic back">‹</div>
       <div class="mc2-item-info"><div class="mc2-item-name" style="color:var(--m)">← Back to ${esc(parentName)}</div></div>
     </div>`;
-    const cur=_mc2BcStack[_mc2BcStack.length-1];
-    const curSel=_mcDestKey===cur.pathKey;
-    html+=`<div class="mc2-list-item${curSel?' selected':''}" style="background:rgba(255,255,255,.025)" onclick="mc2SelectDest(${JSON.stringify(cur.pathKey)})">
+    const cur = _mc2BcStack[_mc2BcStack.length - 1];
+    const curSel = _mcDestKey === cur.pathKey;
+    html += `<div class="mc2-list-item${curSel ? ' selected' : ''}" style="background:rgba(255,255,255,.025)" onclick="mc2SelectDest(${JSON.stringify(cur.pathKey)})">
       <div class="mc2-item-ic folder" style="background:linear-gradient(135deg,var(--pdd),var(--p))">📂</div>
       <div class="mc2-item-info">
         <div class="mc2-item-name" style="color:var(--ptext)">Place here: ${esc(cur.name)}</div>
         <div class="mc2-item-meta">Current folder</div>
       </div>
-      ${curSel?'<div class="mc2-item-check">✓</div>':'<span style="font-size:11px;color:var(--p);font-weight:700">Select</span>'}
+      ${curSel ? '<div class="mc2-item-check">✓</div>' : '<span style="font-size:11px;color:var(--p);font-weight:700">Select</span>'}
     </div>`;
   }
 
-  const filtered=currentNodes.filter(n=>!(src&&(n.pathKey===src.pathKey||n.pathKey.startsWith(src.pathKey+'\x00'))));
-  if(!filtered.length&&_mc2BcStack.length){
-    html+=`<div class="mc2-empty" style="padding:18px"><div class="mc2-empty-ic">📭</div>No subfolders inside</div>`;
+  const filtered = currentNodes.filter(n => !(src && (n.pathKey === src.pathKey || n.pathKey.startsWith(src.pathKey + '\x00'))));
+  if (!filtered.length && _mc2BcStack.length) {
+    html += `<div class="mc2-empty" style="padding:18px"><div class="mc2-empty-ic">📭</div>No subfolders inside</div>`;
   }
-  filtered.forEach(n=>{
-    const sel=_mcDestKey===n.pathKey;
-    html+=mc2ItemHtml(n,sel,n.children.length>0,null);
+  filtered.forEach(n => {
+    const sel = _mcDestKey === n.pathKey;
+    html += mc2ItemHtml(n, sel, n.children.length > 0, null);
   });
 
-  container.innerHTML=html;
+  container.innerHTML = html;
 }
 
-function mc2ItemClick(pathKey,hasKids){
-  if(_mcDestKey===pathKey&&hasKids){
-    // Already selected — tap again to drill in
-    const n=_mcNodeByPk(pathKey);if(n){_mc2BcStack.push(n);mc2RenderList();mc2RenderBc();}
+function mc2ItemClick(pathKey, hasKids) {
+  if (_mcDestKey === pathKey && hasKids) {
+    const n = _mcNodeByPk(pathKey); 
+    if (n) { _mc2BcStack.push(n); mc2RenderList(); mc2RenderBc(); }
     return;
   }
   mc2SelectDest(pathKey);
 }
 
-// Resolve a node by its actual pathKey (works after renderLib resets _NR)
-function _mcNodeByPk(pk){
-  function search(nodes){
-    for(const n of nodes){
-      if(n.pathKey===pk)return n;
-      const r=search(n.children);if(r)return r;
+function _mcNodeByPk(pk) {
+  function search(nodes) {
+    for (const n of nodes) {
+      if (n.pathKey === pk) return n;
+      const r = search(n.children); if (r) return r;
     }
     return null;
   }
   return search(rootNodes);
 }
 
-function mc2SelectDest(key){
-  _mcDestKey=key;
-  const banner=document.getElementById('mc2-sel-banner');
-  const pathEl=document.getElementById('mc2-sel-path');
-  if(banner&&pathEl){
-    if(key===null){banner.style.display='none';}
-    else{
-      banner.style.display='flex';
-      const _dn=_mcNodeByPk(key);
-      pathEl.textContent=key===''?'🏠 Root (top level)':(_dn?_dn.parts.join(' › '):key);
+function mc2SelectDest(key) {
+  _mcDestKey = key;
+  const banner = document.getElementById('mc2-sel-banner');
+  const pathEl = document.getElementById('mc2-sel-path');
+  if (banner && pathEl) {
+    if (key === null) { banner.style.display = 'none'; }
+    else {
+      banner.style.display = 'flex';
+      const _dn = _mcNodeByPk(key);
+      pathEl.textContent = key === '' ? '🏠 Root (top level)' : (_dn ? _dn.parts.join(' › ') : key);
     }
   }
   mc2RenderList();
   mc2UpdateFooter();
 }
 
-function mc2ClearDest(){
-  _mcDestKey=null;
-  const banner=document.getElementById('mc2-sel-banner');if(banner)banner.style.display='none';
+function mc2ClearDest() {
+  _mcDestKey = null;
+  const banner = document.getElementById('mc2-sel-banner'); if (banner) banner.style.display = 'none';
   mc2RenderList();
   mc2UpdateFooter();
 }
 
-function mc2UpdateFooter(){
-  const btn=document.getElementById('mc2-confirm-btn');
-  const sum=document.getElementById('mc2-op-summary');
-  if(!btn)return;
-  const ready=_mcDestKey!==null;
-  btn.disabled=!ready;
-  if(ready){
-    const isMove=_mcMode==='move';
-    const destName=_mcDestKey===''?'Root':(_mcNodeByPk(_mcDestKey)||{name:'Folder'}).name;
-    btn.className='mc2-confirm-btn ready'+(isMove?' move-ready':'');
-    btn.innerHTML=(isMove?'✂️ Move':'📋 Copy')+' to <strong style="margin-left:4px">'+esc(destName)+'</strong>';
-    if(sum){
-      sum.className='mc2-op-summary'+(isMove?' move-op':'');
-      sum.textContent=(isMove?'Move':'Copy')+': '+(_mcNode?_mcNode.name:'Deck')+' → '+destName;
+function mc2UpdateFooter() {
+  const btn = document.getElementById('mc2-confirm-btn');
+  const sum = document.getElementById('mc2-op-summary');
+  if (!btn) return;
+  const ready = _mcDestKey !== null;
+  btn.disabled = !ready;
+  if (ready) {
+    const isMove = _mcMode === 'move';
+    const destName = _mcDestKey === '' ? 'Root' : (_mcNodeByPk(_mcDestKey) || { name: 'Folder' }).name;
+    btn.className = 'mc2-confirm-btn ready' + (isMove ? ' move-ready' : '');
+    btn.innerHTML = (isMove ? '✂️ Move' : '📋 Copy') + ' to <strong style="margin-left:4px">' + esc(destName) + '</strong>';
+    if (sum) {
+      sum.className = 'mc2-op-summary' + (isMove ? ' move-op' : '');
+      sum.textContent = (isMove ? 'Move' : 'Copy') + ': ' + (_mcNode ? _mcNode.name : 'Deck') + ' → ' + destName;
       sum.classList.remove('hidden');
     }
   } else {
-    btn.className='mc2-confirm-btn';
-    btn.innerHTML='Select a destination above';
-    if(sum)sum.classList.add('hidden');
+    btn.className = 'mc2-confirm-btn';
+    btn.innerHTML = 'Select a destination above';
+    if (sum) sum.classList.add('hidden');
   }
 }
 
-async function confirmMC(){
-  if(_mcDestKey===null){toast('Please select a destination','error');return}
-  if(!_mcNode){closeMCModal();return}
-  const node=_mcNode;const destKey=_mcDestKey;const mode=_mcMode;
+async function confirmMC() {
+  if (_mcDestKey === null) { toast('Please select a destination', 'error'); return; }
+  if (!_mcNode) { closeMCModal(); return; }
+  const node = _mcNode; const destKey = _mcDestKey; const mode = _mcMode;
 
-  function findParent(nodes,target){
-    for(const n of nodes){if(n.children.includes(target))return n;const r=findParent(n.children,target);if(r)return r}return null;
+  function findParent(nodes, target) {
+    for (const n of nodes) { if (n.children.includes(target)) return n; const r = findParent(n.children, target); if (r) return r; } return null;
   }
+  
+  const currentParent = findParent(rootNodes, node) || null;
+  const destNode = destKey === '' ? null : _mcNodeByPk(destKey);
+  const destChildren = destNode ? destNode.children : rootNodes;
 
-  // Essential helper: update nodeByKey after a pathKey change
-  function updateNodeByKey(n, oldKey){
-    if(oldKey) delete nodeByKey[oldKey];
-    nodeByKey[n.pathKey] = n;
-    n.children.forEach(c => updateNodeByKey(c, null));
-  }
-
-  const currentParent=findParent(rootNodes,node)||null;
-  const destNode=destKey===''?null:_mcNodeByPk(destKey);
-  const destChildren=destNode?destNode.children:rootNodes;
-
-  if(mode==='move'){
-    if(currentParent===destNode||(destNode===null&&!currentParent)){toast('Already in this location','error');return}
-    if(currentParent)currentParent.children=currentParent.children.filter(c=>c!==node);
-    else rootNodes=rootNodes.filter(c=>c!==node);
-    const destParts=destNode?destNode.parts:[];
-    function rekey(n,pp){
-      const oldKey=n.pathKey;
-      const np=[...pp,n.name];
-      n.pathKey=np.join('\x00');n.parts=np;
-      updateNodeByKey(n, oldKey);
-      if(qCache[oldKey]!==undefined){qCache[n.pathKey]=qCache[oldKey];delete qCache[oldKey];}
-      n.children.forEach(c=>rekey(c,np));
+  if (mode === 'move') {
+    if (currentParent === destNode || (destNode === null && !currentParent)) { toast('Already in this location', 'error'); return; }
+    
+    // FIX: Safely guard against circular moving (moving folder inside itself)
+    if (destNode && (destNode === node || destNode.pathKey.startsWith(node.pathKey + '\x00'))) {
+      toast('Cannot move a folder into itself or its own subfolder', 'error'); return;
     }
-    rekey(node,destParts);
-    if(destNode){destNode.children.push(node);destNode.children.sort((a,b)=>natSort(a.name,b.name));}
-    else{rootNodes.push(node);rootNodes.sort((a,b)=>natSort(a.name,b.name));}
-    toast('✅ "'+node.name+'" moved to '+(destNode?destNode.name:'Root'),'success');
+
+    if (currentParent) currentParent.children = currentParent.children.filter(c => c !== node);
+    else rootNodes = rootNodes.filter(c => c !== node);
+    
+    const destParts = destNode ? destNode.parts : [];
+    function rekey(n, pp) {
+      const np = [...pp, n.name]; const ok = n.pathKey;
+      n.pathKey = np.join('\x00'); n.parts = np;
+      
+      if (typeof nodeByKey !== 'undefined') {
+        nodeByKey[n.pathKey] = n; delete nodeByKey[ok];
+      }
+      if (qCache[ok] !== undefined) { qCache[n.pathKey] = qCache[ok]; delete qCache[ok]; }
+      n.children.forEach(c => rekey(c, np));
+    }
+    rekey(node, destParts);
+    
+    if (destNode) { destNode.children.push(node); destNode.children.sort((a, b) => natSort(a.name, b.name)); }
+    else { rootNodes.push(node); rootNodes.sort((a, b) => natSort(a.name, b.name)); }
+    toast('✅ "' + node.name + '" moved to ' + (destNode ? destNode.name : 'Root'), 'success');
+    
   } else {
-    const destParts=destNode?destNode.parts:[];
-    function deepClone(n,pp){
-      const np=[...pp,n.name];
-      const cl={id:n.id?n.id+'_cp':null,name:n.name,pathKey:np.join('\x00'),parts:np,
-        children:[],ownQ:[...(n.ownQ||[])],ownCount:n.ownCount,totalCount:n.totalCount,isVirtual:n.isVirtual};
-      nodeByKey[cl.pathKey] = cl;
-      const srcQ=qCache[n.pathKey]||[];
-      if(srcQ.length)qCache[cl.pathKey]=srcQ.map(q=>({...q}));
-      cl.children=n.children.map(c=>deepClone(c,np));
+    const destParts = destNode ? destNode.parts : [];
+    function deepClone(n, pp) {
+      const np = [...pp, n.name];
+      const cl = {
+        id: n.id ? n.id + '_cp' : null, name: n.name, pathKey: np.join('\x00'), parts: np,
+        children: [], ownQ: [...(n.ownQ || [])], ownCount: n.ownCount, totalCount: n.totalCount, isVirtual: n.isVirtual
+      };
+      if (typeof nodeByKey !== 'undefined') nodeByKey[cl.pathKey] = cl;
+      
+      const srcQ = qCache[n.pathKey] || [];
+      if (srcQ.length) qCache[cl.pathKey] = srcQ.map(q => ({ ...q }));
+      cl.children = n.children.map(c => deepClone(c, np));
       return cl;
     }
-    const clone=deepClone(node,destParts);
-    let finalName=clone.name;let suf=1;
-    while(destChildren.find(c=>c.name.toLowerCase()===finalName.toLowerCase())){finalName=node.name+' ('+(suf++)+')'}
-    if(finalName!==clone.name){
-      const oldBase=clone.pathKey;
-      clone.name=finalName;
-      const newBase=(destParts.length?destParts.join('\x00')+'\x00':'')+finalName;
-      function rekeyClone(n, oldPrefix, newPrefix){
-        const oldK=n.pathKey;
-        n.pathKey=n.pathKey.replace(oldPrefix, newPrefix);
-        n.parts=n.pathKey.split('\x00');
-        updateNodeByKey(n, oldK);
-        if(qCache[oldK]!==undefined){qCache[n.pathKey]=qCache[oldK];delete qCache[oldK];}
-        n.children.forEach(c=>rekeyClone(c, oldPrefix, newPrefix));
-      }
-      rekeyClone(clone, oldBase, newBase);
-    }
-    if(destNode){destNode.children.push(clone);destNode.children.sort((a,b)=>natSort(a.name,b.name));}
-    else{rootNodes.push(clone);rootNodes.sort((a,b)=>natSort(a.name,b.name));}
-    toast('📋 "'+node.name+'" copied'+(finalName!==node.name?' as "'+finalName+'"':''),'success');
+    const clone = deepClone(node, destParts);
+    let finalName = clone.name; let suf = 1;
+    while (destChildren.find(c => c.name.toLowerCase() === finalName.toLowerCase())) { finalName = node.name + ' (' + (suf++) + ')'; }
+    if (finalName !== clone.name) { clone.name = finalName; clone.pathKey = (destParts.length ? destParts.join('\x00') + '\x00' : '') + finalName; }
+    
+    if (destNode) { destNode.children.push(clone); destNode.children.sort((a, b) => natSort(a.name, b.name)); }
+    else { rootNodes.push(clone); rootNodes.sort((a, b) => natSort(a.name, b.name)); }
+    toast('📋 "' + node.name + '" copied' + (finalName !== node.name ? ' as "' + finalName + '"' : ''), 'success');
   }
-  if(fileId){const meta=await iGet('files',fileId);if(meta)await saveFileMeta(fileId,fileName,meta.total,serializeTree(rootNodes));}
-  invalidateFilesCache();closeMCModal();renderLib();
+
+  if (fileId) { const meta = await iGet('files', fileId); if (meta) await saveFileMeta(fileId, fileName, meta.total, serializeTree(rootNodes)); }
+  invalidateFilesCache(); closeMCModal(); renderLib();
 }
 
 // ── Batched IDB write queue — prevents IDB write storms on rapid answering ──
-let _writeQueue={};let _writeTimer=null;
-function queueWrite(store,key,val){
-  _writeQueue[store+'::'+key]={store,key,val};
-  if(!_writeTimer) _writeTimer=setTimeout(_flushWrites,400);
+let _writeQueue = {}; let _writeTimer = null;
+function queueWrite(store, key, val) {
+  _writeQueue[store + '::' + key] = { store, key, val };
+  if (!_writeTimer) _writeTimer = setTimeout(_flushWrites, 400);
 }
-async function _flushWrites(){
-  _writeTimer=null;
-  const items=Object.values(_writeQueue);
-  _writeQueue={};
-  for(const {store,key,val} of items){
-    await iPut(store,{key,val});
+async function _flushWrites() {
+  _writeTimer = null;
+  const items = Object.values(_writeQueue);
+  _writeQueue = {};
+  for (const { store, key, val } of items) {
+    if (typeof iPut === 'function') await iPut(store, { key, val });
   }
 }
 // Wrap saveScore to use queue
-if(typeof window.saveScore === 'function'){
-  const _origSaveScore = window.saveScore;
-  window.saveScore = function(fk, pk, val){
+const _origSaveScore = window.saveScore;
+if (typeof _origSaveScore === 'function') {
+  window.saveScore = function(fk, pk, val) {
     queueWrite('scores', `${fk}__${pk}`, val);
     return Promise.resolve();
   };
-   }    
+   }
+
 
 </script>
 
