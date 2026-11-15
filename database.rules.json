@@ -1,0 +1,16 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "studydeck_users": {
+      ".read": true,
+      ".write": "newData.exists()",
+      ".validate": "newData.hasChild('users')"
+    },
+    "studydeck_settings": {
+      ".read": true,
+      ".write": "newData.exists()",
+      ".validate": "newData.hasChildren(['upiId', 'amount'])"
+    }
+  }
+}

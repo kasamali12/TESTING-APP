@@ -1,124 +1,30 @@
-# Maro Hisab - Android Project
-## Professional Finance App | Android 8.0+ (API 26+)
+# Checks
 
----
+End-to-end checks that open `index.html` in Chromium and use it like a student would: import questions, take quizzes and tests, change settings, back up and restore, switch themes.
 
-## 📁 Project Structure
 ```
-MaroHisab/
-├── app/
-│   ├── src/main/
-│   │   ├── assets/
-│   │   │   └── index.html           ← Your HTML app lives here
-│   │   ├── java/com/marohisab/app/
-│   │   │   ├── MainActivity.java    ← WebView host
-│   │   │   └── SplashActivity.java  ← Splash screen
-│   │   ├── res/
-│   │   │   ├── layout/
-│   │   │   │   ├── activity_main.xml
-│   │   │   │   └── activity_splash.xml
-│   │   │   ├── values/
-│   │   │   │   ├── strings.xml
-│   │   │   │   ├── colors.xml
-│   │   │   │   └── themes.xml
-│   │   │   └── mipmap-*/            ← App icons
-│   │   └── AndroidManifest.xml
-│   ├── build.gradle
-│   └── proguard-rules.pro
-├── gradle/wrapper/
-│   └── gradle-wrapper.properties
-├── build.gradle
-├── settings.gradle
-└── gradle.properties
+cd tests
+npm install
+npx playwright install chromium     # once
+npm test                            # all checks (about 10 minutes)
+node run.js 04 12                   # only checks starting with 04 or 12
+APP=/path/to/other.html npm test    # another build
 ```
 
----
+Each `NN_*.js` file is one check: it prints `PASS …` / `FAIL …` lines and exits non-zero on a failure. Screenshots go to `out/`. The checks use `data/mcqs.csv` (36 questions in 3 decks) and block all network access, so they behave the same offline.
 
-## 🛠️ How to Build APK
+GitHub runs them on every push and pull request before the page is published (see `.github/workflows/pages.yml`).
 
-### Requirements
-- Android Studio Hedgehog (2023.1.1) or newer
-- JDK 17 (bundled with Android Studio)
-- Android SDK with API 34 installed
-
-### Steps
-
-**1. Open Project**
-- Launch Android Studio
-- Click "Open" → select the `MaroHisab` folder
-- Wait for Gradle sync to complete (first time may take 2–5 mins)
-
-**2. Build Debug APK** (for testing)
-- Go to menu: `Build → Build Bundle(s) / APK(s) → Build APK(s)`
-- APK will be at: `app/build/outputs/apk/debug/app-debug.apk`
-
-**3. Build Release APK** (for distribution)
-- Go to menu: `Build → Generate Signed Bundle / APK`
-- Choose `APK` → Next
-- Create a new keystore (or use existing)
-- Fill in key details → Next
-- Select `release` → Finish
-- APK will be at: `app/build/outputs/apk/release/app-release.apk`
-
----
-
-## 📱 Install on Device
-
-### Via Android Studio
-- Connect your phone via USB
-- Enable Developer Options + USB Debugging on phone
-- Click the green ▶ Run button
-
-### Via ADB (command line)
-```bash
-adb install app/build/outputs/apk/debug/app-debug.apk
-```
-
-### Manual Install
-- Copy the APK to your phone
-- Open file manager → tap the APK
-- Allow "Install from unknown sources" if prompted
-- Tap Install
-
----
-
-## ✨ Features Included
-- Full WebView with JavaScript enabled
-- localStorage support (data persists between sessions)
-- Dark/Light theme support
-- PDF & Excel export support
-- Splash screen with animation
-- Back button navigation
-- Hardware acceleration
-- Portrait orientation lock
-- Custom app icon (MH)
-
----
-
-## 🔧 Customization
-
-### Change App Name
-Edit `app/src/main/res/values/strings.xml`:
-```xml
-<string name="app_name">Your App Name</string>
-```
-
-### Change App Icon
-Replace the PNG files in each `mipmap-*` folder with your own icons.
-
-### Update HTML
-Replace `app/src/main/assets/index.html` with your updated HTML file.
-
-### Allow Landscape Mode
-In `AndroidManifest.xml`, remove or change:
-```xml
-android:screenOrientation="portrait"
-```
-
----
-
-## 📦 App Details
-- **Package ID:** com.marohisab.app
-- **Min SDK:** Android 8.0 (API 26)
-- **Target SDK:** Android 14 (API 34)
-- **Version:** 10.0
+| File | What it covers |
+|---|---|
+| 01–03 | Home, library, quiz, results, Browse, retry wrong answers |
+| 04–05, 12 | Custom tests, NEET PG mock, saved tests and test detail |
+| 06–11 | Quiz options, scoring (+4 / −1), flashcards, starred, weak areas, daily plan, search, settings, edit / delete |
+| 13–14 | Fast taps on answers, local dates and streaks |
+| 15 | CSV import and export, multi-line explanations, answer keys |
+| 16–18 | Backup and restore, accessibility, true-black (AMOLED) theme |
+| 19–20 | TriPath: layout and theme inside the app, first-run screen |
+| 21 | Exam screen layout (phone and sideways), NEET instructions, Settings rows, Undo and notices after a quiz, first-run Home, honest score projection |
+| 22 | Accounts against a fake database: hashed passwords, upgrade of old ones, recovery, no overwrite after a failed download |
+| 23 | One NEET subject split, Half and Full mock sizes, honest labels, the Home reviews-due chip |
+| 24 | The set-up tools (database address, admin password) on the built page |

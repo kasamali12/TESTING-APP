@@ -1,0 +1,47 @@
+const { chromium } = require('playwright'); const path = require('path');
+const file = path.resolve(process.env.APP || '../index.html');
+const ok = (n, c, x) => { console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? '  ' + x : '')); if (!c) process.exitCode = 1; };
+const bg = p => p.evaluate(() => getComputedStyle(document.body).backgroundColor);
+(async () => {
+  const b = await chromium.launch(); const c = await b.newContext({ viewport: { width: 390, height: 780 }, isMobile: true, hasTouch: true });
+  await c.route('**/*', r => { const u = r.request().url(); /^(file|data|blob|about):/.test(u) ? r.continue() : r.abort(); });
+  await c.addInitScript(() => { try { localStorage.setItem('sd_terms_v2', '1'); localStorage.setItem('sd_intro_v2', '1'); } catch (e) {} });
+  const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+  await p.goto('file://' + file, { waitUntil: 'load' }); await p.waitForTimeout(2200);
+  const boot = () => p.evaluate(() => { document.getElementById('sd-auth-ov').style.display = 'none'; document.getElementById('sd-app-wrapper').style.display = ''; });
+  await boot(); await p.evaluate(() => { setThemeMode('dark'); navTo('set'); });
+  const meta = () => p.evaluate(() => document.querySelector('meta[name=theme-color]').getAttribute('content'));
+  const m0 = await meta(); ok('standard dark keeps the original status-bar colour', m0 === '#1F2937', m0);
+  ok('standard dark background is not pure black', (await bg(p)) !== 'rgb(0, 0, 0)', await bg(p));
+  await p.evaluate(() => document.getElementById('tog-amoled').click()); await p.waitForTimeout(300);
+  ok('true black: body is rgb(0,0,0)', (await bg(p)) === 'rgb(0, 0, 0)');
+  ok('true black: status bar colour is black', (await meta()) === '#000000');
+  ok('setting is saved', await p.evaluate(() => JSON.parse(localStorage.getItem('sd-appearance')).amoled === true));
+  const surf = await p.evaluate(() => ['#topbar', '#bnav', '#sset'].map(s => getComputedStyle(document.querySelector(s)).backgroundColor).join(' | '));
+  console.log('surfaces', surf);
+  ok('top bar, bottom bar and panel are black', !/rgb\((?!0, 0, 0\))/.test(surf.replace(/rgba\(0, 0, 0, 0\)/g, 'rgb(0, 0, 0)')), surf);
+  await p.evaluate(() => setThemeMode('light')); await p.waitForTimeout(300);
+  ok('light theme ignores true black', (await bg(p)) !== 'rgb(0, 0, 0)', await bg(p));
+  ok('light theme: status-bar colour back to original', (await meta()) === '#1F2937', await meta());
+  await p.evaluate(() => setThemeMode('auto')); await p.waitForTimeout(300);
+  await p.emulateMedia({ colorScheme: 'dark' }); await p.evaluate(() => setThemeMode('auto')); await p.waitForTimeout(300);
+  ok('auto + system dark = true black', (await bg(p)) === 'rgb(0, 0, 0)', await bg(p));
+  await p.evaluate(() => setThemeMode('dark'));
+  // The saved setting is checked in a fresh page that is handed exactly what the app saved. (Reloading the same page
+  // in headless Chromium sometimes drops local storage under load, on the previous build as well, so that is not a test of the app.)
+  const saved = await p.evaluate(() => localStorage.getItem('sd-appearance'));
+  const c2 = await b.newContext({ viewport: { width: 390, height: 780 }, isMobile: true, hasTouch: true });
+  await c2.route('**/*', r => { const u = r.request().url(); /^(file|data|blob|about):/.test(u) ? r.continue() : r.abort(); });
+  await c2.addInitScript(s => { try { localStorage.setItem('sd-appearance', s); localStorage.setItem('sd-theme-mode', 'dark'); localStorage.setItem('sd_terms_v2', '1'); localStorage.setItem('sd_intro_v2', '1'); } catch (e) {} }, saved);
+  const q = await c2.newPage(); q.on('pageerror', e => errs.push(e.message));
+  await q.goto('file://' + file, { waitUntil: 'load' });
+  ok('saved setting really contains true black', /"amoled":true/.test(saved || ''));
+  ok('flag is set by the time the page has loaded (no flash)', await q.evaluate(() => document.documentElement.getAttribute('data-amoled') === '1' && document.querySelector('head script').textContent.indexOf('data-amoled') > -1 || [...document.head.querySelectorAll('script')].some(x => /data-amoled/.test(x.textContent))));
+  await q.waitForTimeout(2000);
+  await q.evaluate(() => { document.getElementById('sd-auth-ov').style.display = 'none'; document.getElementById('sd-app-wrapper').style.display = ''; setThemeMode('dark'); navTo('set'); }); await q.waitForTimeout(300);
+  ok('survives a fresh start', (await bg(q)) === 'rgb(0, 0, 0)' && await q.evaluate(() => document.getElementById('tog-amoled').checked));
+  await q.evaluate(() => { resetAppearance(); }); await q.waitForTimeout(400);
+  ok('Reset appearance turns true black off', (await bg(q)) !== 'rgb(0, 0, 0)' && await q.evaluate(() => !document.documentElement.hasAttribute('data-amoled') && !document.getElementById('tog-amoled').checked));
+  ok('no page errors', errs.length === 0, errs.join('|'));
+  await b.close();
+})();
