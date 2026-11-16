@@ -1,7 +1,0 @@
-{
-  "name": "studydeck-checks",
-  "private": true,
-  "description": "End-to-end checks for the single-file StudyDeck page (Playwright + Chromium).",
-  "scripts": { "test": "node run.js" },
-  "devDependencies": { "playwright": "^1.48.0" }
-}
