@@ -1,0 +1,208 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "studydeck_users": {
+      ".read": true,
+      ".write": "newData.exists()",
+      ".validate": "newData.hasChild('users')"
+    },
+    "studydeck_settings": {
+      ".read": true,
+      ".write": "newData.exists()",
+      ".validate": "newData.hasChildren(['upiId', 'amount'])"
+    },
+    "studydeck_rank": {
+      "sum": {
+        ".read": true,
+        ".write": "!newData.exists()",
+        "$uid": {
+          ".write": true,
+          ".validate": "newData.hasChildren(['n', 'u', 'a', 's'])",
+          "n": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 40"
+          },
+          "c": {
+            ".validate": "newData.isString() && newData.val().length <= 40"
+          },
+          "u": {
+            ".validate": "newData.isNumber() && newData.val() <= now + 300000"
+          },
+          "s": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 5000"
+          },
+          "a": {
+            ".validate": "newData.hasChildren(['n', 'c', 'q'])",
+            "n": {
+              ".validate": "newData.hasChildren(['0', '1', '2'])",
+              "0": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000"
+              },
+              "1": {
+                ".validate": "newData.isNumber() && newData.val() <= newData.parent().child('2').val() && newData.val() >= -newData.parent().child('2').val() / 4"
+              },
+              "2": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 2000 * newData.parent().child('0').val()"
+              },
+              "$other": {
+                ".validate": false
+              }
+            },
+            "c": {
+              ".validate": "newData.hasChildren(['0', '1', '2'])",
+              "0": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000"
+              },
+              "1": {
+                ".validate": "newData.isNumber() && newData.val() <= newData.parent().child('2').val() && newData.val() >= -newData.parent().child('2').val() / 4"
+              },
+              "2": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 2000 * newData.parent().child('0').val()"
+              },
+              "$other": {
+                ".validate": false
+              }
+            },
+            "q": {
+              ".validate": "newData.hasChildren(['0', '1'])",
+              "0": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 300000"
+              },
+              "1": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= newData.parent().child('0').val()"
+              },
+              "$other": {
+                ".validate": false
+              }
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d": {
+            "$date": {
+              ".validate": "$date.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/) && newData.hasChildren(['n', 'c', 'q'])",
+              "n": {
+                ".validate": "newData.hasChildren(['0', '1', '2'])",
+                "0": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+                },
+                "1": {
+                  ".validate": "newData.isNumber() && newData.val() <= newData.parent().child('2').val() && newData.val() >= -newData.parent().child('2').val() / 4"
+                },
+                "2": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 2000 * newData.parent().child('0').val()"
+                },
+                "$other": {
+                  ".validate": false
+                }
+              },
+              "c": {
+                ".validate": "newData.hasChildren(['0', '1', '2'])",
+                "0": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+                },
+                "1": {
+                  ".validate": "newData.isNumber() && newData.val() <= newData.parent().child('2').val() && newData.val() >= -newData.parent().child('2').val() / 4"
+                },
+                "2": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 2000 * newData.parent().child('0').val()"
+                },
+                "$other": {
+                  ".validate": false
+                }
+              },
+              "q": {
+                ".validate": "newData.hasChildren(['0', '1'])",
+                "0": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3000"
+                },
+                "1": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= newData.parent().child('0').val()"
+                },
+                "$other": {
+                  ".validate": false
+                }
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
+          "b": {
+            ".validate": "newData.hasChildren(['0', '1'])",
+            "0": {
+              ".validate": "newData.isNumber()"
+            },
+            "1": {
+              ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 4000"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "l": {
+            ".validate": "newData.hasChildren(['0', '1', '2', '3', '4'])",
+            "0": {
+              ".validate": "newData.isNumber()"
+            },
+            "1": {
+              ".validate": "newData.val() === 'n' || newData.val() === 'c'"
+            },
+            "2": {
+              ".validate": "newData.isNumber()"
+            },
+            "3": {
+              ".validate": "newData.isNumber()"
+            },
+            "4": {
+              ".validate": "newData.isString() && newData.val().length <= 30"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "studydeck_notice": {
+      "pub": {
+        ".read": true,
+        ".write": "newData.parent().child('w').child('CHANGE_ME_NOTICE_KEY').child('t').val() === now",
+        "$id": {
+          ".validate": "$id.matches(/^n[a-z0-9]{4,12}$/) && newData.hasChildren(['t', 'a'])",
+          "t": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 80"
+          },
+          "b": {
+            ".validate": "newData.isString() && newData.val().length <= 400"
+          },
+          "a": {
+            ".validate": "newData.isNumber() && newData.val() <= now + 300000"
+          },
+          "l": {
+            ".validate": "newData.isString() && newData.val().length <= 300 && newData.val().beginsWith('https://')"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+      "w": {
+        "CHANGE_ME_NOTICE_KEY": {
+          ".write": true,
+          ".validate": "newData.hasChildren(['t'])",
+          "t": {
+            ".validate": "newData.isNumber() && newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    }
+  }
+}
