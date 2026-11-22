@@ -1,0 +1,299 @@
+/* StudyDeck v39 layouts. Placeholders: @@ = html[data-theme] body, @H = one-hand mode prefix.
+   Written after the v38 look so it only changes size, position and arrangement. */
+
+/* ── Shared: install / resume / update card ── */
+#sd-dock{position:fixed;left:12px;right:12px;bottom:calc(74px + env(safe-area-inset-bottom,0px));z-index:420;max-width:480px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 14px;border-radius:16px;background:var(--card2);border:1px solid var(--bdr2);color:var(--t);box-shadow:0 8px 24px rgba(0,0,0,.22)!important;font-family:var(--font)}
+#sd-dock .dk-txt{flex:1;min-width:0}
+#sd-dock .dk-t{font-size:calc(var(--fscale,1)*14px);font-weight:650;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#sd-dock .dk-s{font-size:calc(var(--fscale,1)*12px);color:var(--m);margin-top:2px;line-height:1.3}
+#sd-dock .dk-act{display:flex;gap:6px;flex:none}
+#sd-dock .dk-btn{min-height:38px;padding:0 14px;border-radius:12px;border:1px solid var(--bdr2);background:var(--card);color:var(--t);font:600 calc(var(--fscale,1)*13px)/1 var(--font);cursor:pointer}
+#sd-dock .dk-btn.pri{background:var(--p);color:var(--on-p);border-color:transparent}
+#sd-dock .dk-btn.ic{width:38px;padding:0}
+#sd-dock .dk-btn:focus-visible{outline:2px solid var(--p);outline-offset:2px}
+
+/* ── Settings: App & Offline ── */
+.ao-pill{display:inline-flex;align-items:center;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--bdr2);color:var(--m);white-space:nowrap}
+.ao-pill.ok{color:var(--g);background:var(--gl);border-color:transparent}
+.ao-pill.warn{color:var(--gold);background:var(--goldl);border-color:transparent}
+#sg-appoffline .set-act:disabled{opacity:.5}
+
+/* ── Screen-reader only text, and stronger contrast when the device asks for it ── */
+.sd-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media (prefers-contrast:more){
+  @@{--m:var(--t2);--bdr:var(--bdr3);--bdr2:var(--bdr3)}
+}
+
+@@{--rail-w:0px}
+
+/* ── Very small phones: keep the quiz header on one line ── */
+@media (max-width:380px){
+  @@ .q-top{gap:4px}
+  @@ .q-top .q-pills{margin:0 4px!important}
+  @@ .q-top .pill{padding:4px 8px}
+  @@ .q-top .qfz-val{display:none}
+  @@ .q-top .qfz-btn{width:30px}
+  @@ .q-top :is(.qcb,.palette-toggle-btn){min-width:34px;padding-left:8px;padding-right:8px}
+  @@ .quiz-ctrl-row{gap:4px}
+}
+
+/* ── Wider than a phone: centre the quiz column (it used to stretch edge to edge) ── */
+@media (min-width:700px){
+  @@ #qb{width:100%;max-width:760px;margin-left:auto;margin-right:auto}
+  @@ .qz-actionbar>*{width:min(calc(100% - 24px),760px);margin-left:auto!important;margin-right:auto!important}
+}
+
+/* ── Side rail: desktop, wide tablets and phones turned sideways ── */
+@media (min-width:1024px),(orientation:landscape) and (max-height:520px) and (min-width:560px){
+  @@{--rail:84px}
+  @@:not(:has(#bnav.hidden)){--rail-w:var(--rail)}
+  @@ .bnav{top:0;bottom:0;left:0;right:auto;width:var(--rail);height:auto;padding:68px 8px 14px;flex-direction:column;justify-content:flex-start;align-items:stretch;gap:6px;border:0;border-top:0!important;border-right:1px solid var(--bdr)!important;z-index:310}
+  @@ .bnav::before{content:"SD";position:absolute;top:10px;left:50%;transform:translateX(-50%);width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:11px;background:var(--p);color:var(--on-p);font:700 14px/1 var(--font);letter-spacing:0}
+  @@ .bni{flex:none!important;width:100%;height:auto;min-height:60px;padding:8px 4px;flex-direction:column;gap:4px}
+  @@ .bni.on{flex-grow:0!important}
+  @@ .bni-ic{width:46px;height:30px}
+  @@ .topbar{left:var(--rail-w);padding-left:20px}
+  @@ :is(#sl,#shome,#slib,#sbrowse,#sana,#stests,#stestdetail,#sset,#sres,#srev){left:var(--rail-w);bottom:0!important}
+  @@ #sd-dock{left:calc(var(--rail-w) + 12px);bottom:20px}
+  @@ .home-wrap{max-width:880px;margin-left:auto;margin-right:auto}
+  @@ .home-banner,@@ .home-body{max-width:none;margin-left:0;margin-right:0;padding-left:24px;padding-right:24px}
+  @@ :is(.lib-wrap,.browse-wrap,.ana-wrap,.tests-wrap,.set-wrap,.rev-wrap,.res-wrap){max-width:880px}
+}
+@media (min-width:1280px){
+  @@{--rail:232px}
+  @@ .bnav{padding:76px 12px 16px}
+  @@ .bnav::before{content:"StudyDeck";top:20px;left:24px;transform:none;width:auto;height:auto;justify-content:flex-start;background:none;color:var(--t);font:650 calc(var(--fscale,1)*18px)/1 var(--font);letter-spacing:-.01em}
+  @@ .bni{flex-direction:row;justify-content:flex-start;gap:10px;min-height:46px;padding:0 14px;border-radius:12px}
+  @@ .bni-ic{width:auto;height:auto;background:none!important}
+  @@ .bni.on{background:var(--pl)!important}
+  @@ .bni-label{font-size:calc(var(--fscale,1)*14px)}
+  @@ .home-wrap{max-width:960px}
+  @@ :is(.lib-wrap,.browse-wrap,.ana-wrap,.tests-wrap,.set-wrap,.rev-wrap,.res-wrap){max-width:960px}
+}
+
+/* ── Library: deck list stays beside the open deck ── */
+@media (min-width:1024px){
+  @@:has(#sbrowse:not(.hidden)) #slib{display:block!important;right:auto;width:340px;border-right:1px solid var(--bdr)}
+  @@:has(#sbrowse:not(.hidden)) #sbrowse{left:calc(var(--rail-w) + 340px)}
+}
+
+/* ── Quiz: question palette stays open on the right ── */
+@media (min-width:1100px) and (min-height:560px){
+  @@ #sq{padding-right:320px}
+  @@ #sq .palette-drawer{transform:none!important;top:56px;bottom:0;height:auto;width:320px;border-radius:0;border-top:0;z-index:20}
+  @@ #sq .palette-ov{display:none!important}
+  @@ #sq .pal-close{display:none!important}
+  @@ #palette-toggle-btn{display:none!important}
+  @@ #kb-float-btn{right:336px}
+}
+
+/* ── Phone turned sideways: give the question the room ── */
+@media (orientation:landscape) and (max-height:520px){
+  @@{--rail:76px}
+  @@ .topbar{height:40px}
+  @@ .tb-title{font-size:calc(var(--fscale,1)*15px)}
+  @@ .tb-sub{display:none}
+  @@ :is(#sl,#shome,#slib,#sbrowse,#sana,#stests,#stestdetail,#sset,#sres,#srev){top:40px}
+  @@ .bnav{padding-top:56px;gap:2px}
+  @@ .bnav::before{top:8px;width:32px;height:32px}
+  @@ .bni{min-height:50px;gap:2px}
+  @@ .bni-ic{height:26px}
+  @@ .bni-label{font-size:calc(var(--fscale,1)*10px)}
+  @@ .quiz-wrap{padding-top:42px;padding-bottom:0}
+  @@ .q-top{margin-bottom:2px}
+  @@ .prog{margin:2px 0}
+  @@ #qb .q-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);grid-template-rows:auto auto auto 1fr;column-gap:14px;align-items:start;padding:10px 14px;margin-top:4px}
+  @@ #qb .q-card>*{grid-column:1}
+  @@ #qb .q-subj-badge{justify-self:start}
+  @@ #qb .q-card>.opts{grid-column:2;grid-row:1 / span 4;gap:6px}
+  @@ #qb .q-card>:is(#hint-box,#eb){grid-column:1 / -1}
+  @@ #qb .opt{min-height:44px;padding:8px 10px;gap:10px}
+  @@ #qb .opt-L{width:26px;height:26px}
+  @@ .qz-actionbar{flex-direction:row;align-items:stretch;gap:6px;padding:4px 10px}
+  @@ .qz-actionbar>*{width:auto!important;margin:0!important;max-width:none}
+  @@ .qz-actionbar .neet-nav-row{display:flex!important;flex:1;min-width:0;gap:6px}
+  @@ .qz-actionbar .nab{flex:1 1 auto;min-width:max-content;flex-direction:row;min-height:40px;gap:5px;padding:4px 10px}
+  @@ .qz-actionbar .submit-btn{flex:0 0 auto;min-height:40px;padding:0 14px}
+  @@ .nab .nab-lbl{max-width:none;overflow:visible;white-space:nowrap}
+  @@ .home-banner{padding-top:12px;padding-bottom:8px}
+  @@ #sd-dock{bottom:12px}
+}
+
+/* ── One-hand mode (phones held upright) ── */
+@media (max-width:699px) and (orientation:portrait){
+  @H .bnav{height:calc(74px + env(safe-area-inset-bottom,0px))}
+  @H .bni-ic svg{width:24px;height:24px}
+  @H .bni-label{font-size:calc(var(--fscale,1)*12px)}
+  @H :is(#sl,#shome,#slib,#sbrowse,#sana,#stests,#stestdetail,#sset){bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+  @H #sd-dock{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+  @H .opt{min-height:60px}
+  @H .nab{min-height:62px}
+  @H .qz-actionbar .submit-btn{min-height:52px}
+  @H #palette-toggle-btn{position:fixed;right:14px;bottom:calc(168px + env(safe-area-inset-bottom,0px));z-index:30;width:52px;height:52px;border-radius:26px;background:var(--p)!important;color:var(--on-p)!important;border:0!important;display:flex;align-items:center;justify-content:center}
+  @H #palette-toggle-btn svg{color:var(--on-p)!important;stroke:var(--on-p)!important}
+  @H #palette-toggle-btn .ptb-badge{position:absolute;top:-4px;right:-4px;background:var(--card2)!important;color:var(--t)!important;border:1px solid var(--bdr2)}
+  @H .btn-primary,@H .est-cta{min-height:48px}
+  @H #kb-float-btn{display:none!important}
+}
+
+/* ── Touch screens: small controls get an invisible tap area of at least 44px ── */
+@media (pointer:coarse){
+  @@ :is(.seg,.set-act,.tflt,.qfz-btn,.qcb,.palette-toggle-btn,.q-star,.pq-btn,.sd-ai-plan-btn,.tb-back,.tb-act,.stt-stop,.pal-close,button[onclick="openExamDateModal()"]){position:relative}
+  @@ :is(.seg,.set-act,.tflt,.qfz-btn,.qcb,.palette-toggle-btn,.q-star,.pq-btn,.sd-ai-plan-btn,.tb-back,.tb-act,.stt-stop,.pal-close,button[onclick="openExamDateModal()"])::after{content:"";position:absolute;left:50%;top:50%;width:100%;height:max(100%,44px);transform:translate(-50%,-50%)}
+  @@ :is(.tb-back,.tb-act,.stt-stop,.pal-close,button[onclick="openExamDateModal()"])::after{width:max(100%,44px)}
+  @@ :is(.sd-tab,.est-cta,.te-cta){min-height:44px}
+  @@ .seg{min-height:40px;min-width:40px}
+  @@ button[onclick="undoLastAnswer()"]{min-height:40px;padding-left:14px;padding-right:14px}
+  @@ .qfz-group{overflow:visible}
+  @@ .qfz-group>.qfz-btn:first-child{border-radius:calc(var(--rs) - 1px) 0 0 calc(var(--rs) - 1px)}
+  @@ .qfz-group>.qfz-btn:last-child{border-radius:0 calc(var(--rs) - 1px) calc(var(--rs) - 1px) 0}
+}
+
+/* ── True black for AMOLED screens (dark theme only) ── */
+@A{--bg:#000;--bg2:#000;--card:#0A0C0E;--card2:#101316;--card3:#171B1F;--bdr:#1A1F24;--bdr2:#262D34;--bdr3:#343D46;--glass:rgba(0,0,0,.96);--glass-bdr:rgba(255,255,255,.07);color-scheme:dark}
+@A body{background:#000!important}
+@A #sd-auth-ov{background:#000!important}
+@A :is(.sheet-overlay,.modal-ov,.cmodal-ov,.palette-ov,.gsearch-ov,.ai-preview-ov,.ai-ask-ov,.ai-chk-ov,.note-modal-ov,#terms-ov,.sd-modal-ov){background:rgba(0,0,0,.84)!important}
+@A .video-modal-ov{background:rgba(0,0,0,.92)!important}
+@A :is(#sd-intro-ov,#stripath){background:#000!important}
+
+/* long toasts (e.g. the deck-structure message after an import) wrap inside the screen instead of running off both edges */
+.toast{white-space:normal;width:max-content;max-width:min(92vw,520px);text-align:center;line-height:1.4;overflow-wrap:anywhere}
+/* toasts sit on a solid surface, the status colour is only a tint on top, so the text never mixes with what is behind it */
+.toast,.toast.success,.toast.error,.toast.warning{background-color:var(--card2)}
+.toast.success{background-image:linear-gradient(color-mix(in srgb,var(--g) 15%,transparent),color-mix(in srgb,var(--g) 15%,transparent))}
+.toast.error{background-image:linear-gradient(color-mix(in srgb,var(--r) 15%,transparent),color-mix(in srgb,var(--r) 15%,transparent))}
+.toast.warning{background-image:linear-gradient(color-mix(in srgb,var(--gold) 15%,transparent),color-mix(in srgb,var(--gold) 15%,transparent))}
+/* test detail: a fifth tile (Skipped) shares the row with the other four */
+.td-stats:has(.td-stat:nth-child(5)){grid-template-columns:repeat(5,1fr)}
+.td-stats:has(.td-stat:nth-child(5)) .td-sv{font-size:20px}
+
+/* ── v43 ── */
+/* Timed tests: the quiz area already sits below the sticky timer, so the 70px offset meant for the fixed top bar was blank space.
+   Without it the fourth option no longer hides behind the answer buttons. */
+#sq:has(#gtmr-bar:not(.hidden)) .quiz-wrap{padding-top:10px}
+#sq:has(#gtmr-bar:not(.hidden)) .neet-actionbar{padding-top:6px;gap:4px}
+/* NEET instructions: each line is one flow of text, with the number hanging on the left (it was a flex row, so the marks chips and
+   the words became separate columns and the end of the sentence was cut off). */
+.nbr-inst-item{display:block;padding-left:26px;position:relative}
+.nbr-inst-item .nbr-num{position:absolute;left:0;top:0}
+.nbr-inst-item .nbr-mark{display:inline-block;line-height:1.35;white-space:nowrap}
+/* Settings: a row with three or more choices puts the label on top and the choices underneath, as equal-width buttons. */
+.set-row:has(> .seg-grp > .seg:nth-child(3)){flex-direction:column;align-items:stretch;gap:10px}
+.set-row:has(> .seg-grp > .seg:nth-child(3)) > .seg-grp{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:6px;width:100%}
+.set-row:has(> .seg-grp > .seg:nth-child(3)) > .seg-grp > .seg{width:auto;min-width:0;justify-content:center;text-align:center;min-height:42px}
+/* First run: the plan card is replaced by one clear next step. */
+.sd-firstrun .est-cta{margin:0;flex:1 1 150px;width:auto}
+/* Four choices (Text Size: S M L XL) sit in one line instead of leaving XL alone on a second one. */
+.set-row:has(> .seg-grp > .seg:nth-child(4):last-child) > .seg-grp{grid-template-columns:repeat(4,1fr)}
+/* The keyboard-shortcuts badge floated over the answer options on a phone, where there is no keyboard. The ? key still opens it. */
+@media (hover:none){#kb-float-btn{display:none!important}}
+/* Phone turned sideways: the exam's own header sits under the 40 px top bar, and 22 px of it (a logo corner and a progress strip) showed below the bar. It is clipped to sit fully under the bar, which also gives the question that room. */
+@media (orientation:landscape) and (max-height:520px){#sq .neet-exam-hdr{max-height:37px;overflow:hidden;padding-top:0;padding-bottom:0}}
+/* Home: reviews due today */
+.sd-duechip{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;margin:0 0 10px;padding:10px 14px;border:1px solid var(--bdr2);border-radius:16px;background:var(--card);color:var(--t);font:inherit;text-align:left;cursor:pointer;transition:transform .12s,border-color .15s}
+[data-radius="sharp"] .sd-duechip{border-radius:8px}
+[data-radius="pill"] .sd-duechip{border-radius:28px}
+.sd-duechip:active{transform:scale(.985)}
+.sd-duechip:hover{border-color:var(--p)}
+.sd-dc-ic{font-size:22px;line-height:1}
+.sd-dc-tx{display:flex;flex-direction:column;min-width:0}
+.sd-dc-tx b{font-size:14px;font-weight:800}
+.sd-dc-tx small{font-size:11.5px;color:var(--m);margin-top:2px}
+.sd-dc-go{margin-left:auto;color:var(--ptext);font-size:13px;font-weight:800;white-space:nowrap}
+/* Dialogs taller than the screen could not scroll. The Export dialog (6 formats plus the deck list, 860-1070 px tall) sat anchored to the bottom, so on a phone its title
+   and deck picker were cut off above the screen, out of reach; Delete deck, Add sub-deck and the video player did the same with a phone held sideways. Each dialog is now
+   capped to the screen height and scrolls inside it; the Export title stays in view while you scroll. */
+.exp-fmt-modal,.del-modal,.cmodal,.video-modal{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.exp-fmt-hdr{position:sticky;top:0;z-index:2;background:var(--card)}
+
+/* v47: the answered card. After a wrong answer the verdict, the explanation and the reference read as three separate parts instead of one heavy block
+   (the explanation was semi-bold all the way down, so headings and plain text looked the same), the correct answer is a pill that names its letter, and on
+   wide screens the four navigation buttons share the row evenly instead of sitting at the start of four wide cells. */
+@@ #qb .exp-box{font-weight:400;padding:14px 16px 13px}
+@@ #qb .exp-box .exp-title{font-size:calc(var(--fscale,1)*14.5px);line-height:1.4;flex-wrap:wrap;margin-bottom:6px}
+@@ #qb .exp-box .exp-title strong{display:inline-flex;align-items:center;padding:2px 10px;border-radius:999px;background:var(--gl);color:var(--g);font-weight:800}
+@@ #qb .exp-body{margin-top:8px;font-size:calc(var(--fscale,1)*13.5px);font-weight:450;line-height:1.7;color:var(--t2);overflow-wrap:anywhere}
+@@ #qb .exp-body :is(b,strong){font-weight:800;color:var(--t)}
+@@ .neet-nav-row .nab{max-width:none}
+@media (min-width:700px) and (orientation:portrait),(min-width:700px) and (min-height:521px){
+  @@ .qz-actionbar .neet-nav-row{max-width:760px;margin-left:auto;margin-right:auto;grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
+/* v47: leaderboard */
+.rk{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;background:var(--bg);color:var(--t);font-family:var(--font);overscroll-behavior:contain}
+.rk.adm{z-index:99996}
+.rk-top{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:var(--card);border-bottom:1px solid var(--bdr2)}
+.rk-top h2{flex:1;margin:0;font-size:calc(var(--fscale,1)*17px);font-weight:800;text-align:center}
+.rk-ib{width:44px;height:44px;flex:none;border-radius:12px;border:1px solid var(--bdr2);background:var(--card2);color:var(--t);font-size:20px;line-height:1;cursor:pointer}
+.rk-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;width:100%;max-width:760px;margin:0 auto;box-sizing:border-box;padding:14px 14px calc(30px + env(safe-area-inset-bottom))}
+.rk-card{background:var(--card);border:1px solid var(--bdr2);border-radius:var(--rx);padding:14px 16px;margin-bottom:12px}
+.rk-big{font-size:calc(var(--fscale,1)*18px);font-weight:800;line-height:1.3;overflow-wrap:anywhere}
+.rk-sub{font-size:calc(var(--fscale,1)*13px);color:var(--m);line-height:1.5;overflow-wrap:anywhere}
+.rk-fine{font-size:calc(var(--fscale,1)*12px);color:var(--m);line-height:1.55;margin:8px 0 12px}
+.rk-l{display:block;margin:12px 0 6px;font-size:calc(var(--fscale,1)*13px);font-weight:700;color:var(--t2)}
+.rk-in{width:100%;box-sizing:border-box;min-height:46px;padding:0 12px;border-radius:10px;border:1px solid var(--bdr2);background:var(--card2);color:var(--t);font:inherit;font-size:16px}
+.rk-ck{display:flex;align-items:center;gap:10px;min-height:44px;margin-top:4px;font-size:calc(var(--fscale,1)*14px)}
+.rk-ck input{width:22px;height:22px;flex:none}
+.rk-btn{min-height:46px;padding:0 18px;border:0;border-radius:12px;background:var(--p);color:#fff;font:inherit;font-weight:800;font-size:calc(var(--fscale,1)*14px);cursor:pointer}
+.rk-btn.sm{min-height:44px;padding:0 14px}
+.rk-btn.ghost{background:transparent;border:1px solid var(--bdr2);color:var(--t)}
+.rk-btn.danger{background:transparent;border:1px solid var(--r);color:var(--r)}
+.rk-row2{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.rk-me .rk-row2{margin-top:0;flex-wrap:nowrap}
+.rk-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;margin-bottom:10px;background:var(--card2);border:1px solid var(--bdr2);border-radius:14px}
+.rk-seg .rk-c{min-height:44px;border-radius:10px;border:0;background:transparent}
+.rk-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.rk-c{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--bdr2);background:var(--card);color:var(--t2);font:inherit;font-weight:700;font-size:calc(var(--fscale,1)*13px);cursor:pointer}
+.rk-c.on{background:var(--p);border-color:var(--p);color:#fff}
+.rk-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0 12px}
+.rk-stats div{background:var(--card);border:1px solid var(--bdr2);border-radius:12px;padding:10px 8px;text-align:center}
+.rk-stats b{display:block;font-size:calc(var(--fscale,1)*18px);font-weight:800}
+.rk-stats span{display:block;font-size:calc(var(--fscale,1)*11px);color:var(--m);line-height:1.3}
+.rk-list{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px}
+.rk-r{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:8px;width:100%;min-height:58px;padding:8px 12px;text-align:left;font:inherit;color:var(--t);background:var(--card);border:1px solid var(--bdr2);border-radius:var(--rx);cursor:pointer}
+.rk-r.me{background:var(--pl);border-color:var(--p)}
+.rk-r.a{grid-template-columns:minmax(0,1fr) auto}
+.rk-r.off{opacity:.65}
+.rk-pos{font-weight:800;font-size:calc(var(--fscale,1)*16px);text-align:center}
+.rk-nm,.rk-v{display:flex;flex-direction:column;min-width:0}
+.rk-v{text-align:right;align-items:flex-end}
+.rk-nm b,.rk-v b{font-size:calc(var(--fscale,1)*15px);font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.rk-nm small,.rk-v small{font-size:calc(var(--fscale,1)*11.5px);color:var(--m);font-weight:500;line-height:1.35}
+.rk-h3{margin:18px 2px 8px;font-size:calc(var(--fscale,1)*15px);font-weight:800}
+.rk-day{display:grid;grid-template-columns:78px minmax(0,1fr);column-gap:10px;row-gap:2px;align-items:center;padding:7px 0;border-top:1px solid var(--bdr2)}
+.rk-day:first-of-type{border-top:0}
+.rk-dl{font-size:calc(var(--fscale,1)*12.5px);color:var(--t2);font-weight:700}
+.rk-bar{height:8px;border-radius:4px;background:var(--card3);overflow:hidden}
+.rk-bar i{display:block;height:100%;border-radius:4px;background:var(--p)}
+.rk-dv{grid-column:1/-1;font-size:calc(var(--fscale,1)*12px);color:var(--m)}
+.rk-dv b{color:var(--t)}
+.rk-sh{position:fixed;inset:0;z-index:5;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55)}
+.rk-shc{width:100%;max-width:560px;max-height:88vh;overflow-y:auto;box-sizing:border-box;padding:16px;background:var(--card);border-radius:20px 20px 0 0;border:1px solid var(--bdr2)}
+@media (max-width:420px){.rk-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:700px){.rk-sh{align-items:center}.rk-shc{border-radius:20px}}
+
+/* v49: sepia tone. In the dark and the true-black themes the whole app (Home, Library, Tests, Analytics, Settings, the question screen with its header, options,
+   explanation, Ask Claude card and button bar, results, review, popups, toasts and the status bar) uses warm sepia browns and cream text instead of the cool
+   blue-grey. The theme is variable driven, so this only re-points the colour variables: the accent, the green "correct" colour and the layouts are untouched.
+   True black keeps a pure black page and only the cards take a deep brown. Settings > Sepia tone switches it off; the light theme never changes. */
+html[data-sepia="1"][data-theme="dark"]{--bg:#1F1710;--bg2:#241B13;--card:#2D2218;--card2:#36291D;--card3:#403124;--bdr:#4A3A2A;--bdr2:#574533;--bdr3:#665241;--t:#F1E3C6;--t2:#E2D2B2;--m:#B5A387;--h:#8A7A62;--r:#E8D6B4;--rl:rgba(232,214,180,.12);--rd:#E8D6B4;--glass:rgba(45,34,24,.92);--glass-bdr:rgba(255,235,200,.08)}
+html[data-sepia="1"][data-theme="dark"][data-amoled="1"]{--bg:#000;--bg2:#000;--card:#17100A;--card2:#1F160D;--card3:#281C11;--bdr:#33261A;--bdr2:#40301F;--bdr3:#4E3B28;--t:#EFE0C2;--t2:#DCCBA9;--m:#A99779;--h:#7E6F58;--r:#E4D2AE;--rl:rgba(228,210,174,.12);--rd:#E4D2AE;--glass:rgba(0,0,0,.96);--glass-bdr:rgba(255,235,200,.07)}
+html[data-sepia="1"][data-theme="dark"]:not([data-amoled="1"]) :is(.sheet-overlay,.modal-ov,.cmodal-ov,.palette-ov,.gsearch-ov,.ai-preview-ov,.ai-ask-ov,.ai-chk-ov,.note-modal-ov,.sd-modal-ov){background:rgba(22,13,5,.72)}
+
+/* v50: "Send it to another device" bar shown after a StudyDeck Pack is saved (only where the browser can share files) */
+.sdp-bar{position:fixed;left:50%;bottom:calc(var(--sd-bottom,76px) + 10px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:9998;display:flex;align-items:center;gap:8px;max-width:calc(100vw - 24px);padding:8px 8px 8px 16px;border-radius:16px;background:var(--card2);border:1px solid var(--bdr2);box-shadow:0 10px 30px rgba(0,0,0,.35);color:var(--t);font-size:13px;font-weight:700}
+.sdp-bar .sdp-t{flex:1;min-width:0}
+.sdp-bar .sdp-b,.sdp-parts .sdp-b{min-height:44px;min-width:64px;padding:0 14px;border-radius:12px;border:1px solid var(--bdr2);background:var(--card3);color:var(--t);font:inherit;font-weight:800;cursor:pointer}
+.sdp-bar .sdp-go,.sdp-parts .sdp-go{background:var(--p);border-color:var(--p);color:var(--ptext,#fff)}
+.sdp-bar .sdp-x,.sdp-parts .sdp-x{min-width:44px;padding:0}
+.sdp-parts{position:fixed;left:12px;right:12px;margin:0 auto;max-width:460px;bottom:calc(var(--sd-bottom,76px) + 10px + env(safe-area-inset-bottom,0px));z-index:9998;max-height:62vh;overflow:auto;padding:14px;border-radius:16px;background:var(--card2);border:1px solid var(--bdr2);box-shadow:0 10px 30px rgba(0,0,0,.35);color:var(--t);font-size:13px}
+.sdp-parts .sdp-h{display:flex;align-items:flex-start;gap:8px;font-weight:800;font-size:14px;line-height:1.35}
+.sdp-parts .sdp-h span{flex:1;min-width:0}
+.sdp-parts .sdp-hint{margin:6px 0 10px;color:var(--t2);font-weight:600;line-height:1.45}
+.sdp-parts .sdp-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--bdr)}
+.sdp-parts .sdp-n{flex:1;font-weight:700}
+.sdp-parts .sdp-s{color:var(--m)}
+.sdp-parts .sdp-act{display:flex;gap:8px;margin-top:10px}
+.sdp-parts .sdp-act .sdp-b{flex:1}
+.sdp-parts .sdp-st{margin-top:8px;color:var(--t2);font-weight:700}
